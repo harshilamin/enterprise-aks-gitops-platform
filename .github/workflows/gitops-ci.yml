@@ -148,6 +148,7 @@ jobs:
             -summary
             -ignore-missing-schemas
             -kubernetes-version 1.36.0
+            .rendered/gitops/sample-api-${{ matrix.environment }}.yaml
 
       - name: Upload rendered desired state
         uses: actions/upload-artifact@v7
