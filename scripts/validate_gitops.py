@@ -45,7 +45,6 @@ def validate_project(repository_root: Path) -> None:
         {
             "group": "",
             "kind": "Namespace",
-            "name": "sample-api-*",
         }
     ]
     assert project["spec"]["orphanedResources"]["warn"] is True

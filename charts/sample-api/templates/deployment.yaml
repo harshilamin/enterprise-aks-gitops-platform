@@ -24,6 +24,9 @@ spec:
         {{- end }}
       labels:
         {{- include "sample-api.selectorLabels" . | nindent 8 }}
+        {{- if .Values.workloadIdentity.enabled }}
+        azure.workload.identity/use: "true"
+        {{- end }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -105,6 +108,21 @@ spec:
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.azureKeyVault.enabled }}
+          volumeMounts:
+            - name: secrets-store-inline
+              mountPath: {{ .Values.azureKeyVault.mountPath | quote }}
+              readOnly: true
+          {{- end }}
+      {{- if .Values.azureKeyVault.enabled }}
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ include "sample-api.fullname" . }}-azure-key-vault
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -26,7 +26,6 @@ spec:
   clusterResourceWhitelist:
     - group: ""
       kind: Namespace
-      name: sample-api-*
 
   namespaceResourceWhitelist:
     - group: ""
@@ -47,6 +46,8 @@ spec:
       kind: NetworkPolicy
     - group: policy
       kind: PodDisruptionBudget
+    - group: secrets-store.csi.x-k8s.io
+      kind: SecretProviderClass
 
   orphanedResources:
     warn: true

@@ -57,3 +57,17 @@ app.kubernetes.io/part-of: enterprise-aks-gitops-platform
 {{- printf "%s:%s" $repository $tag -}}
 {{- end -}}
 {{- end }}
+
+{{/* Render Azure Key Vault object configuration for the CSI provider. */}}
+{{- define "sample-api.keyVaultObjects" -}}
+array:
+{{ range .Values.azureKeyVault.objects }}
+  - |
+    objectName: {{ .objectName | quote }}
+    objectType: "secret"
+    objectVersion: {{ default "" .objectVersion | quote }}
+{{ with .objectAlias }}
+    objectAlias: {{ . | quote }}
+{{ end }}
+{{ end }}
+{{- end }}

@@ -22,6 +22,19 @@ serviceAccount:
   annotations: {}
   name: ""
 
+workloadIdentity:
+  enabled: false
+  clientId: ""
+  tenantId: ""
+  serviceAccountTokenExpirationSeconds: 3600
+
+azureKeyVault:
+  enabled: false
+  name: ""
+  cloudName: ""
+  mountPath: /mnt/secrets-store
+  objects: []
+
 podAnnotations: {}
 podLabels: {}
 

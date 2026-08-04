@@ -1,65 +1,58 @@
 # Changelog
 
-## [1.3.0] - 2026-08-04
+## [1.4.0] - 2026-08-04
 
 ### Added
 
-- Restricted Argo CD AppProject
-- ApplicationSet for Dev, QA, and Production
-- Go-template missing-key validation
-- Development automatic sync, pruning, and self-healing
-- Manual QA and Production synchronization
-- GitOps environment image values
-- Digest-setting and adjacent-environment promotion automation
-- Promotion unit tests
-- Generated Application rendering
-- Static GitOps validation
-- Helm desired-state composition validation
-- Argo CD installation and bootstrap scripts
-- Drift-detection and Git-based rollback documentation
-- Argo CD security documentation
-- GitOps CI workflow
-- v1.3.0 interview and release guides
-- ADRs for asymmetric sync and adjacent digest promotion
+- Microsoft Entra Workload ID Helm values
+- Workload Identity ServiceAccount annotations
+- Required pod identity label
+- Azure Key Vault `SecretProviderClass`
+- Read-only Secrets Store CSI volume and mount
+- Identity-enabled Dev, QA, and Production rendering
+- Azure CLI bootstrap automation for OIDC, Workload Identity, CSI add-on, managed identity, RBAC, and federation
+- Non-secret GitOps values generator
+- Live verification scripts that do not print secret contents
+- Six values-generation unit tests
+- Purpose-built identity manifest validation
+- Workload Identity CI workflow
+- AppProject permission for namespaced `SecretProviderClass`
+- Architecture, security, operations, testing, interview, and release documentation
+- ADRs for Workload Identity and file-based Key Vault mounts
 
 ### Changed
 
-- Helm CI now uses published action majors:
-  - `actions/checkout@v6`
-  - `actions/setup-python@v6`
-  - `actions/upload-artifact@v7`
-  - `azure/setup-helm@v5`
+- Helm chart version updated to `1.4.0`
+- Helm packaging artifact updated to `sample-api-1.4.0.tgz`
+- AppProject namespace resource allowlist expanded for `SecretProviderClass`
+- AppProject `Namespace` cluster allowlist corrected to the supported group/kind schema
+- Helm and GitOps CI corrected to the published Kubeconform `v0.7.0` image
 
-### Notes
+### Security
 
-- The initial GitOps image values retain the local portfolio tag.
-- After a registry image exists, the promotion automation clears the tag and uses the immutable digest.
-- FastAPI source and Helm templates are unchanged.
+- Uses `Key Vault Secrets User` role ID `4633458b-17de-408a-b874-0445c86b69e6`
+- Requires Azure RBAC authorization
+- Does not synchronize Key Vault values into Kubernetes Secrets
+- Does not store or print secret values
+
+## [1.3.0] - 2026-08-04
+
+- Argo CD AppProject and ApplicationSet
+- Dev automatic sync
+- QA and Production manual synchronization
+- Digest promotion
+- Drift and rollback documentation
 
 ## [1.2.0] - 2026-08-03
 
-### Added
-
 - Reusable Helm chart
-- Dev, QA, and Production values
-- Deployment, Service, ServiceAccount, and ConfigMap
-- HPA, PDB, NetworkPolicy, optional Ingress, and Helm test
-- Kubernetes security and reliability validation
-- Helm CI and packaged chart artifact
+- Kubernetes security, reliability, and network controls
 
 ## [1.1.0] - 2026-08-03
 
-### Added
-
-- Secure FastAPI application
-- Python 3.12 and 3.14 CI
-- Hardened multi-stage container
-- Tests, typing, linting, coverage, Trivy, and SBOM
+- Secure FastAPI service
+- Hardened container, tests, scanning, and SBOM
 
 ## [1.0.0] - 2026-08-03
 
-### Added
-
-- Repository foundation
-- Architecture and governance
-- Documentation and baseline CI
+- Repository foundation and architecture
