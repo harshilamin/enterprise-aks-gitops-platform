@@ -2,12 +2,12 @@
 
 This repository demonstrates secure application delivery and operations on Azure Kubernetes Service.
 
-Repository 1 provisions Azure infrastructure. Repository 2 manages application packaging, Helm, Argo CD, secrets integration, telemetry, scaling, progressive delivery, and runtime policy.
+Repository 1 provisions Azure and AKS. Repository 2 builds, packages, secures, and will progressively deliver application workloads.
 
 ## Current release
 
-v1.1.0 adds a secure FastAPI workload, hardened container, automated tests, Python 3.12 and 3.14 compatibility checks, Trivy scanning, and CycloneDX SBOM generation.
+v1.2.0 packages the secure FastAPI service as a reusable Helm chart with Dev, QA, and Production values, Kubernetes probes, restricted security contexts, HPA, PDB, NetworkPolicy, topology spread, chart tests, and schema validation.
 
 ## Next release
 
-v1.2.0 packages the workload using Helm and maps the application health model to Kubernetes probes.
+v1.3.0 introduces Argo CD, environment desired state, immutable image-digest promotion, drift detection, and Git-based rollback.

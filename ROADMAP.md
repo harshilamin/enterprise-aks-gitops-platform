@@ -6,15 +6,15 @@ Architecture, repository structure, governance, documentation, and CI.
 
 ## v1.1.0 — Secure sample API — Complete
 
-FastAPI, tests, health endpoints, structured logging, hardened container, Trivy scan, and SBOM.
+FastAPI, tests, health endpoints, structured logging, hardened container, scanning, and SBOM.
 
-## v1.2.0 — Helm — Next
+## v1.2.0 — Helm packaging — Complete
 
-Reusable chart, probes, resources, HPA, PDB, Service, ingress, NetworkPolicy, and Helm tests.
+Reusable chart, environment values, probes, security contexts, resources, HPA, PDB, NetworkPolicy, Ingress, tests, and schema validation.
 
-## v1.3.0 — Argo CD
+## v1.3.0 — Argo CD GitOps — Next
 
-AppProject, ApplicationSet, environment desired state, promotion, drift detection, and rollback.
+AppProject, ApplicationSet, environment desired state, immutable digest promotion, drift detection, and Git-based rollback.
 
 ## v1.4.0 — Azure identity and secrets
 
@@ -26,7 +26,7 @@ OpenTelemetry, OTLP Collector, Prometheus, Grafana, logs, traces, alerts, and SL
 
 ## v1.6.0 — Reliability
 
-HPA, KEDA, disruption controls, topology spread, anti-affinity, and failure testing.
+KEDA, advanced scheduling, failure testing, and availability verification.
 
 ## v1.7.0 — Progressive delivery
 
