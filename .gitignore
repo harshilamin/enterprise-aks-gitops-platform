@@ -14,8 +14,8 @@ site/
 *.pem
 *.key
 *.pfx
-credentials/
-secrets/
+/credentials/
+/secrets/
 kubeconfig
 *.kubeconfig
 charts/*.tgz
