@@ -14,6 +14,7 @@ dist/
 build/
 site/
 *.egg-info/
+.rendered/
 
 # Environment and root-level secrets
 .env

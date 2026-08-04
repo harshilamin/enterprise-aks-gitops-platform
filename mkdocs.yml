@@ -39,6 +39,7 @@ nav:
       - Repository Structure: architecture/repository-structure.md
       - Delivery Model: architecture/delivery-model.md
       - Secure Sample API: architecture/sample-api.md
+      - Helm Chart: architecture/helm-chart.md
       - Decisions:
           - ADR Index: adr/README.md
           - Argo CD: adr/0001-use-argocd-for-gitops.md
@@ -48,14 +49,19 @@ nav:
   - Security:
       - Security Model: security/security-model.md
       - Container Security: security/container-security.md
+      - Kubernetes Workload Security: security/kubernetes-workload-security.md
   - Operations:
       - Local Development: operations/local-development.md
+      - Helm Operations: operations/helm-operations.md
       - Release Process: operations/release-process.md
   - Testing:
       - Application Testing: testing/application-testing.md
+      - Helm Testing: testing/helm-testing.md
   - Portfolio:
       - Interview Story: portfolio/interview-story.md
       - v1.1.0 Interview Story: portfolio/v1.1.0-interview-story.md
+      - v1.2.0 Interview Story: portfolio/v1.2.0-interview-story.md
   - Releases:
       - v1.0.0 Checklist: releases/v1.0.0-checklist.md
       - v1.1.0 Checklist: releases/v1.1.0-checklist.md
+      - v1.2.0 Checklist: releases/v1.2.0-checklist.md

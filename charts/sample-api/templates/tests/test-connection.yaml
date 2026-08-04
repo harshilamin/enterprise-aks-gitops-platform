@@ -1,0 +1,48 @@
+{{- if .Values.helmTest.enabled }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "sample-api.fullname" . }}-test-connection
+  labels:
+    helm.sh/chart: {{ include "sample-api.chart" . }}
+    app.kubernetes.io/name: {{ include "sample-api.name" . }}-test
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: test
+    app.kubernetes.io/part-of: enterprise-aks-gitops-platform
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  automountServiceAccountToken: false
+  restartPolicy: Never
+
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
+    seccompProfile:
+      type: RuntimeDefault
+
+  containers:
+    - name: wget
+      image: "{{ .Values.helmTest.image.repository }}:{{ .Values.helmTest.image.tag }}"
+      imagePullPolicy: {{ .Values.helmTest.image.pullPolicy }}
+
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
+
+      command:
+        - wget
+
+      args:
+        - --spider
+        - --timeout=10
+        - --tries=3
+        - http://{{ include "sample-api.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}/health/ready
+{{- end }}

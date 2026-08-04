@@ -2,200 +2,187 @@
 
 [![Repository CI](https://github.com/harshilamin/enterprise-aks-gitops-platform/actions/workflows/repository-ci.yml/badge.svg)](https://github.com/harshilamin/enterprise-aks-gitops-platform/actions/workflows/repository-ci.yml)
 [![Sample API CI](https://github.com/harshilamin/enterprise-aks-gitops-platform/actions/workflows/app-ci.yml/badge.svg)](https://github.com/harshilamin/enterprise-aks-gitops-platform/actions/workflows/app-ci.yml)
+[![Helm CI](https://github.com/harshilamin/enterprise-aks-gitops-platform/actions/workflows/helm-ci.yml/badge.svg)](https://github.com/harshilamin/enterprise-aks-gitops-platform/actions/workflows/helm-ci.yml)
 [![Documentation](https://github.com/harshilamin/enterprise-aks-gitops-platform/actions/workflows/docs-ci.yml/badge.svg)](https://github.com/harshilamin/enterprise-aks-gitops-platform/actions/workflows/docs-ci.yml)
 [![Release](https://img.shields.io/github/v/release/harshilamin/enterprise-aks-gitops-platform)](https://github.com/harshilamin/enterprise-aks-gitops-platform/releases)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 A production-inspired Kubernetes application platform demonstrating secure delivery to Azure Kubernetes Service using Helm, Argo CD, GitOps, workload identity, OpenTelemetry, scaling, and progressive delivery.
 
-## Current release — v1.1.0
+## Current release — v1.2.0
 
-v1.1.0 adds a secure containerized FastAPI reference workload with:
+v1.2.0 packages the secure FastAPI workload as a reusable Helm chart with:
 
-- Python 3.14.6 local and container baseline
-- Python 3.12 and 3.14 CI compatibility testing
-- Liveness, readiness, and startup endpoints
-- Structured JSON logging
-- Request correlation
-- Security response headers
-- Strict environment validation
-- Production API-documentation hardening
-- Graceful application lifecycle
-- Ruff, mypy, pytest, and coverage gates
-- Multi-stage non-root container image
-- Read-only runtime and dropped Linux capabilities
-- Container smoke testing
-- Trivy vulnerability scanning
-- CycloneDX SBOM generation
+- Dev, QA, and Production values
+- Kubernetes startup, liveness, and readiness probes
+- Restricted pod and container security contexts
+- CPU and memory requests and limits
+- HorizontalPodAutoscaler using `autoscaling/v2`
+- PodDisruptionBudget using `policy/v1`
+- NetworkPolicy using `networking.k8s.io/v1`
+- Optional Ingress
+- Topology spread constraints
+- Rolling-update and graceful-termination controls
+- Helm test Pod
+- JSON Schema validation
+- Helm lint, render, invariant, and Kubernetes-schema checks
+- Packaged chart artifact from CI
 
-## Relationship to Repository 1
+## Repository progression
 
 ```text
-terraform-azure-enterprise-infrastructure
-       |
-       | Provisions Azure, networking, AKS, ACR,
-       | Key Vault, identity, monitoring, governance
-       v
-enterprise-aks-gitops-platform
-       |
-       | Packages, deploys, secures, observes,
-       | scales, promotes, and rolls back workloads
-       v
-AKS application platform
+Repository 1: Terraform provisions Azure and AKS
+                       |
+Repository 2 v1.1.0: Secure application and container
+                       |
+Repository 2 v1.2.0: Helm packaging and Kubernetes controls
+                       |
+Repository 2 v1.3.0: Argo CD GitOps and promotion
 ```
 
-Repository 1 creates the cloud foundation. Repository 2 manages application delivery and Kubernetes operations.
-
-## Architecture
+## Application architecture
 
 ```mermaid
 flowchart LR
-    Developer[Developer] --> GitHub[GitHub]
-    GitHub --> CI[GitHub Actions CI]
+    Developer --> CI[GitHub Actions]
+    CI --> Quality[Ruff, mypy, pytest]
+    CI --> Image[Hardened container]
+    Image --> Chart[Helm chart]
+    Chart --> Dev[Dev values]
+    Chart --> QA[QA values]
+    Chart --> Prod[Production values]
 
-    CI --> Quality[Ruff, mypy, pytest, coverage]
-    CI --> Build[Build hardened image]
-    Build --> Scan[Trivy scan]
-    Build --> SBOM[CycloneDX SBOM]
-    Build --> ACR[Azure Container Registry - planned]
+    Dev --> AKSDev[AKS Dev]
+    QA --> AKSQA[AKS QA]
+    Prod --> AKSProd[AKS Prod]
 
-    ACR --> GitOps[GitOps desired state - planned]
-    GitOps --> Argo[Argo CD - planned]
-    Argo --> Dev[AKS Dev]
-    Argo --> QA[AKS QA]
-    Argo --> Prod[AKS Prod]
-
-    KeyVault[Azure Key Vault - planned] --> Identity[Workload Identity and CSI]
-    Identity --> Dev
-    Identity --> QA
-    Identity --> Prod
-
-    Dev --> OTel[OpenTelemetry - planned]
-    QA --> OTel
-    Prod --> OTel
+    AKSDev --> Probes[Health probes]
+    AKSQA --> Scale[HPA and PDB]
+    AKSProd --> Security[Restricted security and NetworkPolicy]
 ```
 
-## Secure sample API
-
-Source:
+## Helm chart
 
 ```text
-apps/sample-api/src/sample_api/
+charts/sample-api/
+├── Chart.yaml
+├── values.yaml
+├── values.schema.json
+├── values-dev.yaml
+├── values-qa.yaml
+├── values-prod.yaml
+└── templates/
+    ├── deployment.yaml
+    ├── service.yaml
+    ├── service-account.yaml
+    ├── config-map.yaml
+    ├── hpa.yaml
+    ├── pod-disruption-budget.yaml
+    ├── network-policy.yaml
+    ├── ingress.yaml
+    └── tests/test-connection.yaml
 ```
 
-Tests:
+## Environment model
 
-```text
-apps/sample-api/tests/
-```
+| Capability | Dev | QA | Production |
+|---|---:|---:|---:|
+| HPA minimum | 1 | 2 | 3 |
+| HPA maximum | 3 | 5 | 10 |
+| PDB | Disabled | Minimum 1 | Minimum 2 |
+| CPU request | 50m | 100m | 250m |
+| Memory request | 64Mi | 128Mi | 256Mi |
+| Log level | DEBUG | INFO | INFO |
+| NetworkPolicy | Enabled | Enabled | Enabled |
+| Rolling unavailable | 0 | 0 | 0 |
 
-### Endpoints
+## Local validation with Python 3.14.6
 
-| Endpoint | Purpose |
-|---|---|
-| `/` | Service metadata |
-| `/health/live` | Liveness probe |
-| `/health/ready` | Readiness probe |
-| `/health/startup` | Startup probe |
-| `/api/v1/info` | Runtime information |
-| `/docs` | Non-production API documentation |
-
-Production disables `/docs` and `/openapi.json`.
-
-## Local development with Python 3.14.6
+Install Helm on Windows:
 
 ```powershell
-py -3.14 -m venv .venv
+winget install --id Helm.Helm --exact
+```
+
+Restart PowerShell, then verify:
+
+```powershell
+helm version
+```
+
+Install validation dependencies:
+
+```powershell
 .\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements-helm.txt
+```
 
-python -m pip install --upgrade pip
-python -m pip install -e ".[dev]"
+Run the complete release validation:
 
+```powershell
 powershell.exe -ExecutionPolicy Bypass `
-  -File .\scripts\validate-app.ps1
+  -File .\scripts\validate-v1.2.0.ps1
 ```
 
-Run the API:
+## Render Production
 
 ```powershell
-.\scripts\run-app.ps1
+helm template sample-api .\charts\sample-api `
+  --namespace sample-api-prod `
+  --values .\charts\sample-api\values-prod.yaml
 ```
 
-Open:
-
-```text
-http://127.0.0.1:8080
-http://127.0.0.1:8080/docs
-```
-
-## Container execution
-
-Build:
+## Install into a connected cluster
 
 ```powershell
-.\scripts\build-image.ps1
+helm upgrade --install sample-api .\charts\sample-api `
+  --namespace sample-api-dev `
+  --create-namespace `
+  --values .\charts\sample-api\values-dev.yaml `
+  --atomic `
+  --wait
 ```
 
-Run the hardened Compose definition:
+A connected cluster is not required for portfolio validation.
 
-```powershell
-docker compose up --build
-```
+## Security posture
 
-The Compose runtime uses:
-
-- UID and GID `10001`
-- Read-only root filesystem
-- `tmpfs` for `/tmp`
-- All Linux capabilities dropped
-- `no-new-privileges`
-- Graceful shutdown period
-- Container health check
-
-## Application CI
-
-Pull requests run:
-
-1. Python 3.12 and 3.14 dependency installation
-2. Ruff formatting
-3. Ruff linting
-4. Strict mypy checks
-5. pytest with at least 90% coverage
-6. Hardened Docker build
-7. Running-container health checks
-8. Trivy HIGH/CRITICAL reporting with a CRITICAL vulnerability gate
-9. CycloneDX SBOM generation
-
-## GitOps principle
-
-CI produces and verifies immutable artifacts. Git stores desired state. Argo CD reconciles that desired state with AKS.
-
-The same image digest will be promoted through Dev, QA, and Production. It will not be rebuilt for each environment.
+- Runs as UID and GID `10001`
+- Requires non-root execution
+- Uses `RuntimeDefault` seccomp
+- Disables privilege escalation
+- Drops all Linux capabilities
+- Uses a read-only root filesystem
+- Disables service-account token automount
+- Disables Kubernetes service-link environment injection
+- Defines requests and limits
+- Applies ingress and egress NetworkPolicy controls
+- Uses immutable image-digest support for later GitOps promotion
 
 ## Release roadmap
 
 | Release | Scope | Status |
 |---|---|---|
-| v1.0.0 | Foundation, architecture, governance, documentation | Complete |
+| v1.0.0 | Foundation and architecture | Complete |
 | v1.1.0 | Secure containerized FastAPI service | Complete |
-| v1.2.0 | Reusable Helm chart | Next |
-| v1.3.0 | Argo CD GitOps and environment promotion | Planned |
+| v1.2.0 | Reusable Helm chart and Kubernetes controls | Complete |
+| v1.3.0 | Argo CD GitOps and environment promotion | Next |
 | v1.4.0 | Workload identity and Key Vault | Planned |
 | v1.5.0 | OpenTelemetry, Prometheus, Grafana | Planned |
-| v1.6.0 | Scaling, resilience, and network security | Planned |
+| v1.6.0 | Scaling, resilience, and advanced network security | Planned |
 | v1.7.0 | Progressive delivery and rollback | Planned |
 | v1.8.0 | Supply-chain security and policy | Planned |
 | v2.0.0 | Final integrated platform | Planned |
 
 ## Honest scope
 
-The application, container security, automated tests, image scanning, and SBOM generation are implemented in this release.
+The application, container, Helm packaging, probes, resource controls, HPA, PDB, NetworkPolicy, chart tests, and manifest validation are implemented.
 
-Helm, Argo CD, ACR publishing, workload identity, Key Vault, OpenTelemetry, Kubernetes scaling, and progressive delivery remain future releases and are not claimed as implemented yet.
+Argo CD, ACR publishing, workload identity, Key Vault, OpenTelemetry, KEDA, and progressive delivery remain future releases.
 
 ## Interview summary
 
-> Repository 1 provisions AKS and Azure platform services. Repository 2 demonstrates how I package, secure, test, deploy, observe, scale, and promote applications on that platform using GitOps.
+> Repository 1 provisions AKS and Azure platform services. Repository 2 now demonstrates how I build a secure application, package it with Helm, and apply Kubernetes reliability and security controls before introducing GitOps promotion.
 
 ## Author
 

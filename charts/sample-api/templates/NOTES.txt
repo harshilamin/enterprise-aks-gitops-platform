@@ -1,0 +1,19 @@
+1. Check the release:
+
+  kubectl get deployment,service,hpa,pdb,networkpolicy \
+    --namespace {{ .Release.Namespace }} \
+    --selector app.kubernetes.io/instance={{ .Release.Name }}
+
+2. Port-forward locally:
+
+  kubectl port-forward \
+    --namespace {{ .Release.Namespace }} \
+    service/{{ include "sample-api.fullname" . }} 8080:{{ .Values.service.port }}
+
+3. Test readiness:
+
+  curl http://127.0.0.1:8080/health/ready
+
+4. Run the Helm test:
+
+  helm test {{ .Release.Name }} --namespace {{ .Release.Namespace }}
