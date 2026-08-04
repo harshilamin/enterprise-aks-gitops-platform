@@ -2,23 +2,23 @@
 
 ## v1.0.0 — Foundation — Complete
 
-Architecture, repository structure, governance, documentation, and CI.
+Architecture, structure, governance, documentation, and baseline CI.
 
 ## v1.1.0 — Secure sample API — Complete
 
-FastAPI, tests, health endpoints, structured logging, hardened container, scanning, and SBOM.
+FastAPI, tests, health endpoints, structured logs, hardened container, scanning, and SBOM.
 
-## v1.2.0 — Helm packaging — Complete
+## v1.2.0 — Helm — Complete
 
-Reusable chart, environment values, probes, security contexts, resources, HPA, PDB, NetworkPolicy, Ingress, tests, and schema validation.
+Reusable chart, probes, resources, HPA, PDB, NetworkPolicy, security contexts, and Helm tests.
 
-## v1.3.0 — Argo CD GitOps — Next
+## v1.3.0 — Argo CD GitOps — Complete
 
-AppProject, ApplicationSet, environment desired state, immutable digest promotion, drift detection, and Git-based rollback.
+AppProject, ApplicationSet, Dev auto-sync, manual QA/Production sync, digest promotion, drift detection, rollback, and GitOps CI.
 
-## v1.4.0 — Azure identity and secrets
+## v1.4.0 — Azure identity and secrets — Next
 
-Workload identity, Key Vault CSI, SecretProviderClass, and least-privilege access.
+AKS workload identity, Azure Key Vault provider, Secrets Store CSI driver, SecretProviderClass, and least-privilege access.
 
 ## v1.5.0 — Observability
 
@@ -26,11 +26,11 @@ OpenTelemetry, OTLP Collector, Prometheus, Grafana, logs, traces, alerts, and SL
 
 ## v1.6.0 — Reliability
 
-KEDA, advanced scheduling, failure testing, and availability verification.
+KEDA, disruption controls, topology, anti-affinity, and failure testing.
 
 ## v1.7.0 — Progressive delivery
 
-Argo Rollouts, canary, blue/green, health analysis, and rollback.
+Argo Rollouts, canary, blue/green, health analysis, and automated rollback.
 
 ## v1.8.0 — Supply-chain security
 

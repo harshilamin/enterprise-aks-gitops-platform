@@ -1,0 +1,81 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: sample-api-environments
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: sample-api
+    app.kubernetes.io/part-of: enterprise-aks-gitops-platform
+    app.kubernetes.io/managed-by: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions:
+    - missingkey=error
+
+  generators:
+    - list:
+        elements:
+          - environment: dev
+            namespace: sample-api-dev
+            autoSync: "true"
+          - environment: qa
+            namespace: sample-api-qa
+            autoSync: "false"
+          - environment: prod
+            namespace: sample-api-prod
+            autoSync: "false"
+
+  template:
+    metadata:
+      name: 'sample-api-{{ .environment }}'
+      labels:
+        app.kubernetes.io/name: sample-api
+        app.kubernetes.io/part-of: enterprise-aks-gitops-platform
+        environment: '{{ .environment }}'
+      annotations:
+        argocd.argoproj.io/manifest-generate-paths: 'charts/sample-api;gitops/environments/{{ .environment }}'
+    spec:
+      project: sample-api
+
+      source:
+        repoURL: https://github.com/harshilamin/enterprise-aks-gitops-platform.git
+        targetRevision: main
+        path: charts/sample-api
+        helm:
+          releaseName: sample-api
+          valueFiles:
+            - 'values-{{ .environment }}.yaml'
+            - '../../gitops/environments/{{ .environment }}/values.yaml'
+
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{ .namespace }}'
+
+      revisionHistoryLimit: 10
+
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground
+          - PruneLast=true
+          - RespectIgnoreDifferences=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 10s
+            factor: 2
+            maxDuration: 3m
+
+  templatePatch: |
+    {{- if eq .autoSync "true" }}
+    spec:
+      syncPolicy:
+        automated:
+          enabled: true
+          prune: true
+          selfHeal: true
+          allowEmpty: false
+    {{- end }}
+
+  syncPolicy:
+    preserveResourcesOnDeletion: true

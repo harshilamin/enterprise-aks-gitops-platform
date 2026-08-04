@@ -1,0 +1,9 @@
+image:
+  repository: enterprise-aks-sample-api
+  tag: "1.1.0"
+  digest: ""
+  pullPolicy: IfNotPresent
+
+app:
+  environment: production
+  logLevel: INFO

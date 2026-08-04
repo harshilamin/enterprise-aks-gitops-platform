@@ -41,17 +41,17 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Set up Helm
-        uses: azure/setup-helm@v5.0.1
+        uses: azure/setup-helm@v5
         with:
           version: v4.2.3
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@v6
         with:
           python-version: "3.14"
           cache: pip
@@ -69,10 +69,7 @@ jobs:
       - name: Render manifests
         shell: bash
         run: |
-          helm template sample-api charts/sample-api \
-            --namespace sample-api-${{ matrix.environment }} \
-            --values charts/sample-api/values-${{ matrix.environment }}.yaml \
-            --include-crds > rendered-${{ matrix.environment }}.yaml
+          helm template sample-api charts/sample-api             --namespace sample-api-${{ matrix.environment }}             --values charts/sample-api/values-${{ matrix.environment }}.yaml             --include-crds > rendered-${{ matrix.environment }}.yaml
 
       - name: Validate security and reliability invariants
         run: >-
@@ -105,12 +102,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Set up Helm
-        uses: azure/setup-helm@v5.0.1
+        uses: azure/setup-helm@v5
         with:
           version: v4.2.3
 
