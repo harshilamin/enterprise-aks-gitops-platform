@@ -152,7 +152,7 @@ jobs:
           exit-code: "0"
 
       - name: Upload SBOM
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: sample-api-sbom
           path: sample-api-sbom.cdx.json
