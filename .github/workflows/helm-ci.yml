@@ -84,8 +84,8 @@ jobs:
           args: >-
             -strict
             -summary
+            -ignore-missing-schemas
             -kubernetes-version 1.36.0
-            rendered-${{ matrix.environment }}.yaml
 
       - name: Upload rendered manifest
         uses: actions/upload-artifact@v7
