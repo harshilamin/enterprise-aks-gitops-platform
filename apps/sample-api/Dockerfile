@@ -20,7 +20,7 @@ FROM python:${PYTHON_VERSION}-slim AS runtime
 ARG APP_UID=10001
 ARG APP_GID=10001
 
-ENV PATH="/opt/venv/bin:${PATH}"     PYTHONDONTWRITEBYTECODE=1     PYTHONUNBUFFERED=1     APP_NAME=enterprise-aks-sample-api     APP_VERSION=1.5.0     APP_ENVIRONMENT=production     LOG_LEVEL=INFO
+ENV PATH="/opt/venv/bin:${PATH}"     PYTHONDONTWRITEBYTECODE=1     PYTHONUNBUFFERED=1     APP_NAME=enterprise-aks-sample-api     APP_VERSION=2.0.0     APP_ENVIRONMENT=production     LOG_LEVEL=INFO
 
 RUN groupadd --gid "${APP_GID}" appgroup     && useradd         --uid "${APP_UID}"         --gid "${APP_GID}"         --no-create-home         --shell /usr/sbin/nologin         appuser
 

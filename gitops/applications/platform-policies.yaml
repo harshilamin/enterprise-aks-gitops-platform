@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: platform-security-policies
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: enterprise-aks-gitops-platform
+spec:
+  project: platform-security
+  source:
+    repoURL: https://github.com/harshilamin/enterprise-aks-gitops-platform.git
+    targetRevision: main
+    path: platform/policies/kyverno
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kyverno
+  syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
+      - RespectIgnoreDifferences=true

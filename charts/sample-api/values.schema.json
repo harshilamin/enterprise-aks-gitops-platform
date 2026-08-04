@@ -634,6 +634,249 @@
           }
         }
       }
+    },
+    "keda": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "pollingInterval",
+        "cooldownPeriod",
+        "minReplicaCount",
+        "maxReplicaCount",
+        "fallback",
+        "prometheus"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "pollingInterval": {
+          "type": "integer",
+          "minimum": 5,
+          "maximum": 3600
+        },
+        "cooldownPeriod": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 86400
+        },
+        "minReplicaCount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxReplicaCount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "fallback": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "failureThreshold",
+            "replicas"
+          ],
+          "properties": {
+            "failureThreshold": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "replicas": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "prometheus": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "serverAddress",
+            "metricName",
+            "query",
+            "threshold",
+            "activationThreshold"
+          ],
+          "properties": {
+            "serverAddress": {
+              "type": "string",
+              "pattern": "^https?://"
+            },
+            "metricName": {
+              "type": "string",
+              "minLength": 1
+            },
+            "query": {
+              "type": "string",
+              "minLength": 1
+            },
+            "threshold": {
+              "type": "string",
+              "minLength": 1
+            },
+            "activationThreshold": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "progressiveDelivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "controllerVersion",
+        "minReadySeconds",
+        "canary",
+        "analysis"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "controllerVersion": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "minReadySeconds": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3600
+        },
+        "canary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "maxSurge",
+            "maxUnavailable",
+            "steps"
+          ],
+          "properties": {
+            "maxSurge": {
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "maxUnavailable": {
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "steps": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "analysis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "prometheusAddress",
+            "interval",
+            "count",
+            "failureLimit",
+            "availabilityTarget",
+            "latencyThresholdSeconds"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "prometheusAddress": {
+              "type": "string",
+              "pattern": "^https?://"
+            },
+            "interval": {
+              "type": "string",
+              "pattern": "^[0-9]+(s|m|h)$"
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "failureLimit": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "availabilityTarget": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "latencyThresholdSeconds": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        }
+      }
+    },
+    "resilience": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minReadySeconds",
+        "terminationMessagePolicy",
+        "antiAffinity"
+      ],
+      "properties": {
+        "minReadySeconds": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3600
+        },
+        "terminationMessagePolicy": {
+          "type": "string",
+          "enum": [
+            "File",
+            "FallbackToLogsOnError"
+          ]
+        },
+        "antiAffinity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "type",
+            "topologyKey"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "preferred",
+                "required"
+              ]
+            },
+            "topologyKey": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
     }
   },
   "required": [
@@ -714,6 +957,61 @@
               },
               "objects": {
                 "minItems": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "keda": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "autoscaling": {
+            "properties": {
+              "enabled": {
+                "const": false
+              }
+            }
+          },
+          "progressiveDelivery": {
+            "properties": {
+              "enabled": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "progressiveDelivery": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "keda": {
+            "properties": {
+              "enabled": {
+                "const": false
               }
             }
           }

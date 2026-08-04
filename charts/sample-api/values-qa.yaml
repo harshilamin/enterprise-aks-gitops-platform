@@ -31,3 +31,9 @@ observability:
     podDisruptionBudget:
       enabled: true
 
+progressiveDelivery:
+  enabled: true
+  minReadySeconds: 15
+
+resilience:
+  minReadySeconds: 15

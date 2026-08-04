@@ -1,0 +1,25 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: sample-api-require-immutable-images
+  annotations:
+    policies.kyverno.io/title: Require immutable image digests
+    policies.kyverno.io/category: Supply Chain Security
+spec:
+  validationFailureAction: Audit
+  background: true
+  rules:
+    - name: require-sha256-digest
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - sample-api-prod
+      validate:
+        message: Production containers must use immutable sha256 image digests.
+        pattern:
+          spec:
+            containers:
+              - image: "*@sha256:*"

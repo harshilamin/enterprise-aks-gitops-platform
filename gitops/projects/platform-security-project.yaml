@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform-security
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: enterprise-aks-gitops-platform
+spec:
+  description: Restricted project for cluster security policies
+  sourceRepos:
+    - https://github.com/harshilamin/enterprise-aks-gitops-platform.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: kyverno
+  clusterResourceWhitelist:
+    - group: kyverno.io
+      kind: ClusterPolicy
+  namespaceResourceWhitelist: []
+  orphanedResources:
+    warn: true

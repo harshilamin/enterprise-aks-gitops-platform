@@ -9,7 +9,7 @@ def test_root_returns_service_metadata(client: TestClient) -> None:
     assert response.status_code == 200
     assert response.json() == {
         "service": "enterprise-aks-sample-api",
-        "version": "1.5.0",
+        "version": "2.0.0",
         "environment": "test",
         "status": "running",
     }

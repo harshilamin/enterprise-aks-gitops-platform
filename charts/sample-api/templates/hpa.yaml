@@ -1,4 +1,4 @@
-{{- if .Values.autoscaling.enabled }}
+{{- if and .Values.autoscaling.enabled (not .Values.keda.enabled) }}
 {{- if and (not .Values.autoscaling.targetCPUUtilizationPercentage) (not .Values.autoscaling.targetMemoryUtilizationPercentage) }}
 {{- fail "autoscaling requires a CPU or memory utilization target" }}
 {{- end }}
@@ -10,8 +10,13 @@ metadata:
     {{- include "sample-api.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
+    {{- if .Values.progressiveDelivery.enabled }}
+    apiVersion: argoproj.io/v1alpha1
+    kind: Rollout
+    {{- else }}
     apiVersion: apps/v1
     kind: Deployment
+    {{- end }}
     name: {{ include "sample-api.fullname" . }}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}

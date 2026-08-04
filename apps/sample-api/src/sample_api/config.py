@@ -6,7 +6,7 @@ import os
 from dataclasses import dataclass
 
 DEFAULT_APP_NAME = "enterprise-aks-sample-api"
-DEFAULT_APP_VERSION = "1.5.0"
+DEFAULT_APP_VERSION = "2.0.0"
 DEFAULT_ENVIRONMENT = "local"
 DEFAULT_LOG_LEVEL = "INFO"
 DEFAULT_OTEL_ENDPOINT = "http://127.0.0.1:4318"

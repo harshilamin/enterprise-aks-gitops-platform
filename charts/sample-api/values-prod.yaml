@@ -7,11 +7,11 @@ replicaCount: 3
 image:
   pullPolicy: IfNotPresent
   # The GitOps workflow will replace tag/digest with a verified immutable digest.
-  tag: "1.5.0"
+  tag: "2.0.0"
   digest: ""
 
 autoscaling:
-  enabled: true
+  enabled: false
   minReplicas: 3
   maxReplicas: 10
   targetCPUUtilizationPercentage: 65
@@ -77,3 +77,19 @@ observability:
     podDisruptionBudget:
       enabled: true
 
+keda:
+  enabled: true
+  pollingInterval: 30
+  cooldownPeriod: 300
+  minReplicaCount: 3
+  maxReplicaCount: 10
+  fallback:
+    failureThreshold: 3
+    replicas: 3
+
+resilience:
+  minReadySeconds: 20
+  antiAffinity:
+    enabled: true
+    type: required
+    topologyKey: kubernetes.io/hostname

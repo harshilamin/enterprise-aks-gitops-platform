@@ -1,0 +1,30 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: sample-api-require-platform-labels
+  annotations:
+    policies.kyverno.io/title: Require platform ownership labels
+spec:
+  validationFailureAction: Audit
+  background: true
+  rules:
+    - name: require-standard-labels
+      match:
+        any:
+          - resources:
+              kinds:
+                - Deployment
+                - argoproj.io/v1alpha1/Rollout
+              namespaces:
+                - sample-api-dev
+                - sample-api-qa
+                - sample-api-prod
+      validate:
+        message: Platform workloads require name, instance, component, and part-of labels.
+        pattern:
+          metadata:
+            labels:
+              app.kubernetes.io/name: "?*"
+              app.kubernetes.io/instance: "?*"
+              app.kubernetes.io/component: api
+              app.kubernetes.io/part-of: enterprise-aks-gitops-platform
