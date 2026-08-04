@@ -19,6 +19,6 @@ def test_cli_starts_uvicorn(monkeypatch: pytest.MonkeyPatch) -> None:
     __main__.main()
 
     assert captured["app"] == "sample_api.main:app"
-    assert captured["host"] == "0.0.0.0"
-    assert captured["port"] == 8080
+    assert captured["host"] == __main__.CONTAINER_HOST
+    assert captured["port"] == __main__.CONTAINER_PORT
     assert captured["access_log"] is False
