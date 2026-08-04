@@ -11,7 +11,7 @@ replicaCount: 2
 image:
   repository: enterprise-aks-sample-api
   pullPolicy: IfNotPresent
-  tag: "1.1.0"
+  tag: "1.5.0"
   digest: ""
 
 imagePullSecrets: []
@@ -34,6 +34,73 @@ azureKeyVault:
   cloudName: ""
   mountPath: /mnt/secrets-store
   objects: []
+
+observability:
+  enabled: true
+  serviceName: enterprise-aks-sample-api
+  otlp:
+    endpoint: ""
+    metricExportIntervalMs: 15000
+  traces:
+    sampleRatio: 1.0
+  collector:
+    enabled: true
+    replicaCount: 1
+    image:
+      repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib
+      tag: "0.157.0"
+      digest: ""
+      pullPolicy: IfNotPresent
+    ports:
+      otlpGrpc: 4317
+      otlpHttp: 4318
+      prometheus: 8889
+      telemetry: 8888
+      health: 13133
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    memoryLimitMiB: 384
+    replicasForPdb: 2
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      runAsUser: 10001
+      runAsGroup: 10001
+      capabilities:
+        drop:
+          - ALL
+    podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 10001
+      runAsGroup: 10001
+      fsGroup: 10001
+      seccompProfile:
+        type: RuntimeDefault
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    scrapeTimeout: 10s
+    additionalLabels:
+      release: kube-prometheus-stack
+  prometheusRule:
+    enabled: true
+    additionalLabels:
+      release: kube-prometheus-stack
+    availabilityTarget: 0.995
+    latencyThresholdSeconds: 0.5
+  grafanaDashboard:
+    enabled: true
+    labels:
+      grafana_dashboard: "1"
 
 podAnnotations: {}
 podLabels: {}

@@ -2,31 +2,21 @@
 
 ## v1.0.0 — Foundation — Complete
 
-Architecture, structure, governance, documentation, and baseline CI.
-
 ## v1.1.0 — Secure sample API — Complete
 
-FastAPI, tests, structured logs, hardened container, scanning, and SBOM.
-
-## v1.2.0 — Helm — Complete
-
-Reusable chart, probes, resources, HPA, PDB, NetworkPolicy, security contexts, and tests.
+## v1.2.0 — Helm and Kubernetes controls — Complete
 
 ## v1.3.0 — Argo CD GitOps — Complete
 
-AppProject, ApplicationSet, environment promotion, drift detection, and Git rollback.
-
 ## v1.4.0 — Azure identity and secrets — Complete
 
-AKS Workload Identity, user-assigned managed identity federation, Azure Key Vault CSI provider, file mounts, Azure RBAC, validation, and bootstrap automation.
+## v1.5.0 — Observability and SLOs — Complete
 
-## v1.5.0 — Observability — Next
+OpenTelemetry instrumentation, OTLP Collector, Prometheus, Grafana, recording rules, dashboards, and SLO alerting.
 
-OpenTelemetry SDK and Collector, OTLP, Prometheus metrics, Grafana dashboards, traces, logs, alerts, and SLOs.
+## v1.6.0 — Reliability — Next
 
-## v1.6.0 — Reliability
-
-KEDA, resilience controls, failure testing, and advanced networking.
+KEDA, resilience controls, failure testing, advanced networking, and capacity planning.
 
 ## v1.7.0 — Progressive delivery
 

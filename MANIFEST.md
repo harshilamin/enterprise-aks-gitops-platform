@@ -1,55 +1,93 @@
-# v1.4.0 Overlay Manifest
+# v1.5.0 Overlay Manifest
 
-Apply these files over the merged v1.3.0 repository.
+Apply these files over a clean repository where v1.4.0 is already merged.
+
+## Release scope
+
+- OpenTelemetry Python traces and metrics
+- Hardened in-namespace OpenTelemetry Collector
+- Prometheus ServiceMonitor and SLO rules
+- Grafana dashboard discovery
+- Manual GitOps installation of kube-prometheus-stack
+- Dev, QA, and Production observability validation
 
 ## Files
 
-- `.github/workflows/gitops-ci.yml`
 - `.github/workflows/helm-ci.yml`
-- `.github/workflows/identity-ci.yml`
+- `.github/workflows/observability-ci.yml`
 - `CHANGELOG.md`
 - `README.md`
-- `RELEASE_NOTES_V1.4.0.md`
+- `RELEASE_NOTES_V1.5.0.md`
 - `ROADMAP.md`
-- `SETUP_V1.4.0.md`
-- `VALIDATION_V1.4.0.md`
+- `SETUP_V1.5.0.md`
+- `VALIDATION_V1.5.0.md`
+- `apps/sample-api/.env.example`
+- `apps/sample-api/Dockerfile`
+- `apps/sample-api/README.md`
+- `apps/sample-api/src/sample_api/__init__.py`
+- `apps/sample-api/src/sample_api/config.py`
+- `apps/sample-api/src/sample_api/logging_config.py`
+- `apps/sample-api/src/sample_api/main.py`
+- `apps/sample-api/src/sample_api/telemetry.py`
+- `apps/sample-api/tests/conftest.py`
+- `apps/sample-api/tests/test_api.py`
+- `apps/sample-api/tests/test_config.py`
+- `apps/sample-api/tests/test_runtime_paths.py`
+- `apps/sample-api/tests/test_telemetry.py`
 - `charts/sample-api/Chart.yaml`
 - `charts/sample-api/README.md`
 - `charts/sample-api/templates/_helpers.tpl`
+- `charts/sample-api/templates/config-map.yaml`
 - `charts/sample-api/templates/deployment.yaml`
-- `charts/sample-api/templates/secret-provider-class.yaml`
-- `charts/sample-api/templates/service-account.yaml`
-- `charts/sample-api/values-workload-identity-ci.yaml`
-- `charts/sample-api/values-workload-identity.example.yaml`
+- `charts/sample-api/templates/grafana-dashboard.yaml`
+- `charts/sample-api/templates/network-policy.yaml`
+- `charts/sample-api/templates/otel-collector-configmap.yaml`
+- `charts/sample-api/templates/otel-collector-deployment.yaml`
+- `charts/sample-api/templates/otel-collector-network-policy.yaml`
+- `charts/sample-api/templates/otel-collector-pdb.yaml`
+- `charts/sample-api/templates/otel-collector-service.yaml`
+- `charts/sample-api/templates/prometheus-rule.yaml`
+- `charts/sample-api/templates/service-monitor.yaml`
+- `charts/sample-api/values-dev.yaml`
+- `charts/sample-api/values-prod.yaml`
+- `charts/sample-api/values-qa.yaml`
 - `charts/sample-api/values.schema.json`
 - `charts/sample-api/values.yaml`
-- `docs/adr/0007-use-entra-workload-identity.md`
-- `docs/adr/0008-mount-key-vault-secrets-as-files.md`
+- `docs/adr/0009-use-opentelemetry-collector.md`
+- `docs/adr/0010-use-multi-window-slo-alerts.md`
 - `docs/adr/README.md`
-- `docs/architecture/workload-identity.md`
+- `docs/architecture/observability.md`
 - `docs/index.md`
-- `docs/operations/secret-rotation.md`
-- `docs/operations/workload-identity-bootstrap.md`
-- `docs/portfolio/v1.4.0-interview-story.md`
-- `docs/releases/v1.4.0-checklist.md`
-- `docs/security/key-vault-secrets.md`
-- `docs/testing/identity-testing.md`
-- `gitops/environments/dev/workload-identity.example.yaml`
-- `gitops/environments/prod/workload-identity.example.yaml`
-- `gitops/environments/qa/workload-identity.example.yaml`
+- `docs/operations/collector-troubleshooting.md`
+- `docs/operations/monitoring-bootstrap.md`
+- `docs/operations/slo-response.md`
+- `docs/portfolio/v1.5.0-interview-story.md`
+- `docs/releases/v1.5.0-checklist.md`
+- `docs/security/telemetry-data.md`
+- `docs/testing/observability-testing.md`
+- `gitops/applications/kube-prometheus-stack.yaml`
+- `gitops/environments/dev/values.yaml`
+- `gitops/environments/prod/values.yaml`
+- `gitops/environments/qa/values.yaml`
+- `gitops/projects/observability-project.yaml`
 - `gitops/projects/sample-api-project.yaml`
 - `mkdocs.yml`
-- `platform/identity/bootstrap-workload-identity.ps1`
-- `platform/identity/bootstrap-workload-identity.sh`
-- `platform/identity/verify-workload-identity.ps1`
-- `platform/identity/verify-workload-identity.sh`
-- `requirements-identity.txt`
-- `scripts/generate-workload-identity-values.ps1`
-- `scripts/generate_workload_identity_values.py`
-- `scripts/validate-identity.ps1`
-- `scripts/validate-identity.sh`
-- `scripts/validate-v1.4.0.ps1`
-- `scripts/validate-v1.4.0.sh`
+- `platform/observability/bootstrap-observability.ps1`
+- `platform/observability/bootstrap-observability.sh`
+- `platform/observability/create-grafana-admin-secret.ps1`
+- `platform/observability/create-grafana-admin-secret.sh`
+- `platform/observability/kube-prometheus-stack-values.yaml`
+- `platform/observability/verify-observability.ps1`
+- `platform/observability/verify-observability.sh`
+- `pyproject.toml`
+- `requirements-docs.txt`
+- `requirements-observability.txt`
+- `scripts/validate-observability.ps1`
+- `scripts/validate-observability.sh`
+- `scripts/validate-rendered-manifests.py`
+- `scripts/validate-v1.5.0.ps1`
+- `scripts/validate-v1.5.0.sh`
 - `scripts/validate_gitops.py`
 - `scripts/validate_identity.py`
-- `tests/identity/test_generate_workload_identity_values.py`
+- `scripts/validate_observability.py`
+- `tests/observability/test_observability_contract.py`

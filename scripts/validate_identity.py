@@ -19,11 +19,19 @@ def parse_documents(path: Path) -> list[dict[str, Any]]:
         return [document for document in yaml.safe_load_all(stream) if isinstance(document, dict)]
 
 
-def get_one(documents: list[dict[str, Any]], kind: str) -> dict[str, Any]:
-    """Return exactly one Kubernetes resource of the requested kind."""
-    matches = [document for document in documents if document.get("kind") == kind]
+def get_named(
+    documents: list[dict[str, Any]],
+    kind: str,
+    name: str,
+) -> dict[str, Any]:
+    """Return exactly one named Kubernetes resource."""
+    matches = [
+        document
+        for document in documents
+        if document.get("kind") == kind and document.get("metadata", {}).get("name") == name
+    ]
     if len(matches) != 1:
-        raise AssertionError(f"Expected exactly one {kind}; found {len(matches)}")
+        raise AssertionError(f"Expected exactly one {kind} named {name}; found {len(matches)}")
     return matches[0]
 
 
@@ -60,14 +68,14 @@ def validate_manifest(path: Path, environment: str) -> None:
         "Secret values must not be synchronized into Kubernetes Secret resources"
     )
 
-    service_account = get_one(documents, "ServiceAccount")
+    service_account = get_named(documents, "ServiceAccount", "sample-api")
     annotations = service_account["metadata"]["annotations"]
     assert annotations["azure.workload.identity/client-id"] == EXPECTED_CLIENT_ID
     assert annotations["azure.workload.identity/tenant-id"] == EXPECTED_TENANT_ID
     assert annotations["azure.workload.identity/service-account-token-expiration"] == "3600"
     assert service_account["automountServiceAccountToken"] is False
 
-    deployment = get_one(documents, "Deployment")
+    deployment = get_named(documents, "Deployment", "sample-api")
     pod_template = deployment["spec"]["template"]
     pod_spec = pod_template["spec"]
     container = pod_spec["containers"][0]
@@ -86,7 +94,11 @@ def validate_manifest(path: Path, environment: str) -> None:
     assert csi["readOnly"] is True
     assert csi["volumeAttributes"]["secretProviderClass"].endswith("-azure-key-vault")
 
-    secret_provider_class = get_one(documents, "SecretProviderClass")
+    secret_provider_class = get_named(
+        documents,
+        "SecretProviderClass",
+        "sample-api-azure-key-vault",
+    )
     assert secret_provider_class["apiVersion"] == "secrets-store.csi.x-k8s.io/v1"
     assert secret_provider_class["spec"]["provider"] == "azure"
 
@@ -111,7 +123,7 @@ def validate_manifest(path: Path, environment: str) -> None:
         "qa": "qa",
         "prod": "production",
     }[environment]
-    config_map = get_one(documents, "ConfigMap")
+    config_map = get_named(documents, "ConfigMap", "sample-api")
     assert config_map["data"]["APP_ENVIRONMENT"] == expected_environment
 
     print(

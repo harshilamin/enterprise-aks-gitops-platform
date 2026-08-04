@@ -1,0 +1,84 @@
+{{- if and .Values.observability.enabled .Values.observability.prometheusRule.enabled }}
+{{- $budget := subf 1.0 .Values.observability.prometheusRule.availabilityTarget }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "sample-api.fullname" . }}
+  labels:
+    {{- include "sample-api.labels" . | nindent 4 }}
+    {{- with .Values.observability.prometheusRule.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  groups:
+    - name: {{ include "sample-api.fullname" . }}.sli
+      rules:
+        - record: sample_api:http_requests:rate5m
+          expr: sum by (deployment_environment_name) (rate(sample_api_http_server_request_count_total{http_route!~"/health/.*"}[5m]))
+        - record: sample_api:http_errors:rate5m
+          expr: sum by (deployment_environment_name) (rate(sample_api_http_server_request_count_total{http_route!~"/health/.*",http_response_status_code=~"5.."}[5m]))
+        - record: sample_api:availability:ratio5m
+          expr: 1 - (sample_api:http_errors:rate5m / clamp_min(sample_api:http_requests:rate5m, 0.001))
+        - record: sample_api:latency:p95_5m
+          expr: histogram_quantile(0.95, sum by (le, deployment_environment_name) (rate(sample_api_http_server_request_duration_seconds_bucket{http_route!~"/health/.*"}[5m])))
+    - name: {{ include "sample-api.fullname" . }}.slo
+      rules:
+        - alert: SampleApiAvailabilitySLOBurnRateFast
+          expr: |
+            (
+              sum(rate(sample_api_http_server_request_count_total{http_route!~"/health/.*",http_response_status_code=~"5.."}[5m]))
+              /
+              clamp_min(sum(rate(sample_api_http_server_request_count_total{http_route!~"/health/.*"}[5m])), 0.001)
+            ) > {{ mulf 14.4 $budget }}
+            and
+            (
+              sum(rate(sample_api_http_server_request_count_total{http_route!~"/health/.*",http_response_status_code=~"5.."}[1h]))
+              /
+              clamp_min(sum(rate(sample_api_http_server_request_count_total{http_route!~"/health/.*"}[1h])), 0.001)
+            ) > {{ mulf 14.4 $budget }}
+          for: 2m
+          labels:
+            severity: critical
+            slo: availability
+          annotations:
+            summary: Sample API is rapidly consuming its availability error budget
+            runbook_url: https://github.com/harshilamin/enterprise-aks-gitops-platform/blob/main/docs/operations/slo-response.md
+        - alert: SampleApiAvailabilitySLOBurnRateSlow
+          expr: |
+            (
+              sum(rate(sample_api_http_server_request_count_total{http_route!~"/health/.*",http_response_status_code=~"5.."}[30m]))
+              /
+              clamp_min(sum(rate(sample_api_http_server_request_count_total{http_route!~"/health/.*"}[30m])), 0.001)
+            ) > {{ mulf 6.0 $budget }}
+            and
+            (
+              sum(rate(sample_api_http_server_request_count_total{http_route!~"/health/.*",http_response_status_code=~"5.."}[6h]))
+              /
+              clamp_min(sum(rate(sample_api_http_server_request_count_total{http_route!~"/health/.*"}[6h])), 0.001)
+            ) > {{ mulf 6.0 $budget }}
+          for: 15m
+          labels:
+            severity: warning
+            slo: availability
+          annotations:
+            summary: Sample API is steadily consuming its availability error budget
+            runbook_url: https://github.com/harshilamin/enterprise-aks-gitops-platform/blob/main/docs/operations/slo-response.md
+        - alert: SampleApiLatencySLOViolation
+          expr: sample_api:latency:p95_5m > {{ .Values.observability.prometheusRule.latencyThresholdSeconds }}
+          for: 15m
+          labels:
+            severity: warning
+            slo: latency
+          annotations:
+            summary: Sample API p95 latency exceeds the configured objective
+            runbook_url: https://github.com/harshilamin/enterprise-aks-gitops-platform/blob/main/docs/operations/slo-response.md
+        - alert: SampleApiCollectorExportFailures
+          expr: sum(rate(otelcol_exporter_send_failed_metric_points_total[5m])) > 0 or sum(rate(otelcol_exporter_send_failed_spans_total[5m])) > 0
+          for: 5m
+          labels:
+            severity: warning
+            component: otel-collector
+          annotations:
+            summary: OpenTelemetry Collector is failing to export telemetry
+            runbook_url: https://github.com/harshilamin/enterprise-aks-gitops-platform/blob/main/docs/operations/collector-troubleshooting.md
+{{- end }}

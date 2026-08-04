@@ -1,0 +1,75 @@
+{{- if and .Values.observability.enabled .Values.observability.collector.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sample-api.fullname" . }}-otel-collector
+  labels:
+    {{- include "sample-api.collectorLabels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.observability.collector.replicaCount }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      {{- include "sample-api.collectorSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/otel-collector-configmap.yaml") . | sha256sum }}
+      labels:
+        {{- include "sample-api.collectorSelectorLabels" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        {{- toYaml .Values.observability.collector.podSecurityContext | nindent 8 }}
+      containers:
+        - name: otel-collector
+          image: {{ include "sample-api.collectorImage" . | quote }}
+          imagePullPolicy: {{ .Values.observability.collector.image.pullPolicy }}
+          args:
+            - --config=/conf/collector.yaml
+          securityContext:
+            {{- toYaml .Values.observability.collector.securityContext | nindent 12 }}
+          ports:
+            - name: otlp-grpc
+              containerPort: {{ .Values.observability.collector.ports.otlpGrpc }}
+              protocol: TCP
+            - name: otlp-http
+              containerPort: {{ .Values.observability.collector.ports.otlpHttp }}
+              protocol: TCP
+            - name: prometheus
+              containerPort: {{ .Values.observability.collector.ports.prometheus }}
+              protocol: TCP
+            - name: telemetry
+              containerPort: {{ .Values.observability.collector.ports.telemetry }}
+              protocol: TCP
+            - name: health
+              containerPort: {{ .Values.observability.collector.ports.health }}
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /
+              port: health
+            periodSeconds: 10
+            timeoutSeconds: 2
+          livenessProbe:
+            httpGet:
+              path: /
+              port: health
+            periodSeconds: 20
+            timeoutSeconds: 2
+          resources:
+            {{- toYaml .Values.observability.collector.resources | nindent 12 }}
+          volumeMounts:
+            - name: collector-config
+              mountPath: /conf
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: collector-config
+          configMap:
+            name: {{ include "sample-api.fullname" . }}-otel-collector
+        - name: tmp
+          emptyDir: {}
+{{- end }}

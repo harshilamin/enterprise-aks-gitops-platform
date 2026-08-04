@@ -1,0 +1,64 @@
+{{- if and .Values.observability.enabled .Values.observability.grafanaDashboard.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "sample-api.fullname" . }}-grafana-dashboard
+  labels:
+    {{- include "sample-api.labels" . | nindent 4 }}
+    {{- with .Values.observability.grafanaDashboard.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+data:
+  sample-api-overview.json: |-
+    {
+      "annotations": {"list": []},
+      "editable": true,
+      "graphTooltip": 1,
+      "panels": [
+        {
+          "type": "stat",
+          "title": "Availability (5m)",
+          "targets": [{"expr": "sample_api:availability:ratio5m", "legendFormat": "{{`{{deployment_environment_name}}`}}"}],
+          "fieldConfig": {"defaults": {"unit": "percentunit", "min": 0, "max": 1}},
+          "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0}
+        },
+        {
+          "type": "timeseries",
+          "title": "Request rate",
+          "targets": [{"expr": "sample_api:http_requests:rate5m", "legendFormat": "{{`{{deployment_environment_name}}`}}"}],
+          "fieldConfig": {"defaults": {"unit": "reqps"}},
+          "gridPos": {"h": 8, "w": 9, "x": 6, "y": 0}
+        },
+        {
+          "type": "timeseries",
+          "title": "p95 latency",
+          "targets": [{"expr": "sample_api:latency:p95_5m", "legendFormat": "{{`{{deployment_environment_name}}`}}"}],
+          "fieldConfig": {"defaults": {"unit": "s"}},
+          "gridPos": {"h": 8, "w": 9, "x": 15, "y": 0}
+        },
+        {
+          "type": "timeseries",
+          "title": "5xx request rate",
+          "targets": [{"expr": "sample_api:http_errors:rate5m", "legendFormat": "{{`{{deployment_environment_name}}`}}"}],
+          "fieldConfig": {"defaults": {"unit": "reqps"}},
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+        },
+        {
+          "type": "timeseries",
+          "title": "Collector accepted spans",
+          "targets": [{"expr": "sum(rate(otelcol_receiver_accepted_spans_total[5m]))", "legendFormat": "accepted spans"}],
+          "fieldConfig": {"defaults": {"unit": "ops"}},
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+        }
+      ],
+      "refresh": "30s",
+      "schemaVersion": 41,
+      "tags": ["sample-api", "opentelemetry", "slo"],
+      "templating": {"list": []},
+      "time": {"from": "now-6h", "to": "now"},
+      "timezone": "browser",
+      "title": "Sample API — OpenTelemetry and SLOs",
+      "uid": "sample-api-observability",
+      "version": 1
+    }
+{{- end }}

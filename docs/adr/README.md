@@ -10,3 +10,6 @@
 | [ADR-0006](0006-promote-adjacent-image-digests.md) | Promote adjacent image digests |
 | [ADR-0007](0007-use-entra-workload-identity.md) | Use Microsoft Entra Workload Identity |
 | [ADR-0008](0008-mount-key-vault-secrets-as-files.md) | Mount Key Vault secrets as files |
+| [ADR-0009](0009-use-opentelemetry-collector.md) | Use the OpenTelemetry Collector |
+| [ADR-0010](0010-use-multi-window-slo-alerts.md) | Use multi-window SLO burn alerts |
+

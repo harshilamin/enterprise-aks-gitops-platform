@@ -61,6 +61,8 @@ def validate_project(repository_root: Path) -> None:
         ("autoscaling", "HorizontalPodAutoscaler"),
         ("networking.k8s.io", "NetworkPolicy"),
         ("policy", "PodDisruptionBudget"),
+        ("monitoring.coreos.com", "ServiceMonitor"),
+        ("monitoring.coreos.com", "PrometheusRule"),
     }
     assert required_resources.issubset(allowed_resources)
 

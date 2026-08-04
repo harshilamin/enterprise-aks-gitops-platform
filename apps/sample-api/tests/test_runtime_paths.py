@@ -83,3 +83,26 @@ def test_json_formatter_includes_exception() -> None:
 
     assert '"exception":' in output
     assert "RuntimeError: formatter test" in output
+
+
+def test_json_formatter_includes_trace_context() -> None:
+    from sample_api.config import Settings
+    from sample_api.telemetry import create_telemetry
+
+    telemetry = create_telemetry(Settings(environment="test", otel_enabled=False))
+    formatter = JsonFormatter()
+    record = logging.LogRecord(
+        name="sample_api",
+        level=logging.INFO,
+        pathname=__file__,
+        lineno=1,
+        msg="correlated",
+        args=(),
+        exc_info=None,
+    )
+
+    with telemetry.tracer.start_as_current_span("test-span"):
+        output = formatter.format(record)
+
+    assert '"trace_id":' in output
+    assert '"span_id":' in output

@@ -27,7 +27,7 @@ spec:
   {{- else }}
   ingress: []
   {{- end }}
-  {{- if or .Values.networkPolicy.dns.enabled .Values.networkPolicy.additionalEgress }}
+  {{- if or .Values.networkPolicy.dns.enabled .Values.observability.enabled .Values.networkPolicy.additionalEgress }}
   egress:
     {{- if .Values.networkPolicy.dns.enabled }}
     - to:
@@ -42,6 +42,17 @@ spec:
           port: 53
         - protocol: TCP
           port: 53
+    {{- end }}
+    {{- if and .Values.observability.enabled .Values.observability.collector.enabled }}
+    - to:
+        - podSelector:
+            matchLabels:
+              {{- include "sample-api.collectorSelectorLabels" . | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.observability.collector.ports.otlpHttp }}
+        - protocol: TCP
+          port: {{ .Values.observability.collector.ports.otlpGrpc }}
     {{- end }}
     {{- with .Values.networkPolicy.additionalEgress }}
     {{- toYaml . | nindent 4 }}
