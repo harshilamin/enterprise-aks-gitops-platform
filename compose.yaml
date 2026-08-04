@@ -1,0 +1,38 @@
+services:
+  sample-api:
+    build:
+      context: .
+      dockerfile: apps/sample-api/Dockerfile
+      args:
+        PYTHON_VERSION: "3.14.6"
+    image: enterprise-aks-sample-api:1.1.0
+    environment:
+      APP_NAME: enterprise-aks-sample-api
+      APP_VERSION: 1.1.0
+      APP_ENVIRONMENT: local
+      LOG_LEVEL: INFO
+    ports:
+      - "8080:8080"
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    user: "10001:10001"
+    init: true
+    stop_grace_period: 20s
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - >-
+          import urllib.request;
+          urllib.request.urlopen(
+          'http://127.0.0.1:8080/health/live', timeout=2).read()
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s

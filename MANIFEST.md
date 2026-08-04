@@ -1,0 +1,50 @@
+# v1.1.0 Overlay Manifest
+
+Apply these files over the existing green v1.0.0 repository.
+
+- `.dockerignore`
+- `.github/dependabot.yml`
+- `.github/workflows/app-ci.yml`
+- `.github/workflows/docs-ci.yml`
+- `.github/workflows/repository-ci.yml`
+- `.gitignore`
+- `.python-version`
+- `CHANGELOG.md`
+- `README.md`
+- `ROADMAP.md`
+- `SETUP_V1.1.0.md`
+- `VALIDATION.md`
+- `apps/sample-api/.env.example`
+- `apps/sample-api/Dockerfile`
+- `apps/sample-api/README.md`
+- `apps/sample-api/src/sample_api/__init__.py`
+- `apps/sample-api/src/sample_api/__main__.py`
+- `apps/sample-api/src/sample_api/config.py`
+- `apps/sample-api/src/sample_api/logging_config.py`
+- `apps/sample-api/src/sample_api/main.py`
+- `apps/sample-api/src/sample_api/models.py`
+- `apps/sample-api/src/sample_api/py.typed`
+- `apps/sample-api/tests/conftest.py`
+- `apps/sample-api/tests/test_api.py`
+- `apps/sample-api/tests/test_cli.py`
+- `apps/sample-api/tests/test_config.py`
+- `apps/sample-api/tests/test_lifecycle.py`
+- `apps/sample-api/tests/test_runtime_paths.py`
+- `compose.yaml`
+- `docs/architecture/sample-api.md`
+- `docs/index.md`
+- `docs/operations/local-development.md`
+- `docs/portfolio/v1.1.0-interview-story.md`
+- `docs/releases/v1.1.0-checklist.md`
+- `docs/security/container-security.md`
+- `docs/testing/application-testing.md`
+- `mkdocs.yml`
+- `pyproject.toml`
+- `scripts/build-image.ps1`
+- `scripts/build-image.sh`
+- `scripts/run-app.ps1`
+- `scripts/run-app.sh`
+- `scripts/validate-app.ps1`
+- `scripts/validate-app.sh`
+- `scripts/validate-v1.1.0.ps1`
+- `scripts/validate-v1.1.0.sh`

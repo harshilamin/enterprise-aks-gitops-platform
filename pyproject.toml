@@ -1,0 +1,107 @@
+[build-system]
+requires = ["setuptools>=80.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "enterprise-aks-sample-api"
+version = "1.1.0"
+description = "Secure production-inspired FastAPI workload for the Enterprise AKS GitOps Platform"
+readme = "README.md"
+requires-python = ">=3.12,<3.15"
+license = { text = "MIT" }
+authors = [
+  { name = "Harshil Amin" }
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Framework :: FastAPI",
+  "Typing :: Typed"
+]
+dependencies = [
+  "fastapi==0.139.2",
+  "pydantic==2.13.4",
+  "uvicorn[standard]==0.51.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "coverage==7.15.2",
+  "httpx==0.28.1",
+  "mypy==2.3.0",
+  "pytest==9.1.1",
+  "pytest-cov==7.1.0",
+  "ruff==0.15.22"
+]
+
+[project.scripts]
+sample-api = "sample_api.__main__:main"
+
+[tool.setuptools]
+package-dir = { "" = "apps/sample-api/src" }
+
+[tool.setuptools.packages.find]
+where = ["apps/sample-api/src"]
+
+[tool.setuptools.package-data]
+sample_api = ["py.typed"]
+
+[tool.pytest.ini_options]
+addopts = [
+  "--strict-config",
+  "--strict-markers",
+  "--cov=sample_api",
+  "--cov-report=term-missing",
+  "--cov-report=xml:coverage.xml",
+  "--cov-fail-under=90"
+]
+testpaths = ["apps/sample-api/tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["sample_api"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_lines = [
+  "pragma: no cover",
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.:"
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["apps/sample-api/src", "apps/sample-api/tests"]
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "F",
+  "I",
+  "UP",
+  "B",
+  "SIM",
+  "ASYNC",
+  "S",
+  "RUF"
+]
+ignore = [
+  "S101"
+]
+
+[tool.ruff.lint.per-file-ignores]
+"apps/sample-api/tests/*" = ["S101"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_configs = true
+files = ["apps/sample-api/src"]
+
+[[tool.mypy.overrides]]
+module = "uvicorn.*"
+ignore_missing_imports = true

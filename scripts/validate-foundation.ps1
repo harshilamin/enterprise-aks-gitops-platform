@@ -47,10 +47,13 @@ foreach ($directory in $requiredDirectories) {
 $trackedFiles = git ls-files 2>$null
 if ($LASTEXITCODE -eq 0) {
     $forbidden = $trackedFiles | Where-Object {
-        $_ -match '(^|/)\.env($|\.)' -or
-        $_ -match '\.(pem|pfx|key)$' -or
-        $_ -match '(^|/)kubeconfig$'
-    }
+    (
+        $_ -match '(^|/)\.env($|\.)' -and
+        $_ -notmatch '(^|/)\.env\.example$'
+    ) -or
+    $_ -match '\.(pem|pfx|key)$' -or
+    $_ -match '(^|/)kubeconfig$'
+}
 
     if ($forbidden) {
         throw "Sensitive files are tracked: $($forbidden -join ', ')"

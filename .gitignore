@@ -1,25 +1,42 @@
+# Python
 __pycache__/
 *.pyc
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
 .venv/
 .coverage
 coverage.xml
 htmlcov/
+
+# Build outputs
 dist/
 build/
 site/
+*.egg-info/
+
+# Environment and root-level secrets
 .env
 .env.*
 !.env.example
+/credentials/
+/secrets/
 *.pem
 *.key
 *.pfx
-/credentials/
-/secrets/
+
+# Kubernetes local files
 kubeconfig
 *.kubeconfig
+
+# Helm
 charts/*.tgz
+
+# Editors and operating systems
 .idea/
+.vscode/settings.local.json
 .DS_Store
 Thumbs.db
+
+# Logs
 *.log

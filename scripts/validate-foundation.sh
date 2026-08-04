@@ -43,10 +43,11 @@ done
 
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   forbidden="$(
-    git ls-files |
-      grep -E '(^|/)\.env($|\.)|.*\.(pem|pfx|key)$|(^|/)kubeconfig$' ||
-      true
-  )"
+  git ls-files |
+    grep -E '(^|/)\.env($|\.)|.*\.(pem|pfx|key)$|(^|/)kubeconfig$' |
+    grep -v -E '(^|/)\.env\.example$' ||
+    true
+)"
 
   if [[ -n "${forbidden}" ]]; then
     echo "Sensitive files are tracked:"
