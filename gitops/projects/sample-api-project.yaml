@@ -48,6 +48,12 @@ spec:
       kind: PodDisruptionBudget
     - group: secrets-store.csi.x-k8s.io
       kind: SecretProviderClass
+    - group: argoproj.io
+      kind: Rollout
+    - group: argoproj.io
+      kind: AnalysisTemplate
+    - group: keda.sh
+      kind: ScaledObject
     - group: monitoring.coreos.com
       kind: ServiceMonitor
     - group: monitoring.coreos.com

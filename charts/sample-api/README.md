@@ -1,46 +1,30 @@
-# sample-api Helm Chart
+# sample-api Helm Chart — v2.0.0
 
-A secure, observable application chart for the Enterprise AKS GitOps Platform.
+The final chart packages a hardened FastAPI workload with environment-specific delivery and scaling patterns.
 
-## v1.5.0 capabilities
+## Environment composition
 
-- Hardened FastAPI Deployment
-- Microsoft Entra Workload Identity and Azure Key Vault CSI
-- OpenTelemetry Collector deployment
-- OTLP/HTTP and OTLP/gRPC receivers
-- Prometheus application metric exporter
-- Collector internal telemetry endpoint
-- ServiceMonitor
-- SLI recording rules
-- Multi-window availability burn alerts
-- p95 latency alert
-- Grafana dashboard ConfigMap
-- NetworkPolicy for telemetry flows
+| Environment | Workload | Autoscaler |
+|---|---|---|
+| Dev | Kubernetes Deployment | HPA |
+| QA | Argo Rollout canary | HPA targeting the Rollout scale subresource |
+| Prod | Kubernetes Deployment | KEDA Prometheus ScaledObject |
 
-## Render
+## Platform features
+
+- Startup, liveness, and readiness probes
+- Requests, limits, HPA, KEDA, PDB, topology spreading, and pod anti-affinity
+- Default-deny-style NetworkPolicy with DNS, monitoring, collector, and optional ingress-controller allowances
+- Microsoft Entra Workload ID and Azure Key Vault Secrets Store CSI
+- OpenTelemetry Collector, ServiceMonitor, PrometheusRule, and Grafana dashboard
+- Argo Rollouts AnalysisTemplate with availability and p95 latency checks
+- Immutable image digest support
+
+## Validate
 
 ```powershell
-helm template sample-api .\charts\sample-api `
-  --namespace sample-api-dev `
-  --values .\charts\sample-api\values-dev.yaml `
-  --values .\gitops\environments\dev\values.yaml
+helm lint . --strict --values values-qa.yaml
+helm template sample-api . --namespace sample-api-qa --values values-qa.yaml
 ```
 
-## Signal behavior
-
-- Traces: OTLP -> Collector -> debug exporter
-- Metrics: OTLP -> Collector -> Prometheus exporter
-- Logs: structured stdout with `trace_id` and `span_id`
-
-## SLO defaults
-
-```yaml
-observability:
-  prometheusRule:
-    availabilityTarget: 0.995
-    latencyThresholdSeconds: 0.5
-```
-
-## Production note
-
-Replace the debug trace exporter with a durable backend before relying on distributed tracing for retention or search.
+The chart intentionally prevents KEDA and progressive delivery from being enabled together in the same environment. This avoids two controllers competing for the same scaling target in the reference architecture.

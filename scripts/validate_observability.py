@@ -47,8 +47,10 @@ def validate_application_configuration(documents: list[dict[str, Any]]) -> None:
     assert 0.0 <= float(data["OTEL_TRACE_SAMPLE_RATIO"]) <= 1.0
     assert int(data["OTEL_METRIC_EXPORT_INTERVAL_MS"]) >= 1000
 
-    deployment = get_named(documents, "Deployment", "sample-api")
-    container = deployment["spec"]["template"]["spec"]["containers"][0]
+    kinds = {str(document.get("kind")) for document in documents}
+    workload_kind = "Rollout" if "Rollout" in kinds else "Deployment"
+    workload = get_named(documents, workload_kind, "sample-api")
+    container = workload["spec"]["template"]["spec"]["containers"][0]
     environment = {item["name"]: item for item in container["env"]}
     assert (
         environment["OTEL_SERVICE_INSTANCE_ID"]["valueFrom"]["fieldRef"]["fieldPath"]

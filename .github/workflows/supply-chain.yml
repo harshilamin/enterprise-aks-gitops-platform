@@ -1,0 +1,107 @@
+name: Supply Chain Release
+
+on:
+  push:
+    tags:
+      - "v2.*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+concurrency:
+  group: supply-chain-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-sign-attest:
+    name: Build, scan, sign, and attest
+    runs-on: ubuntu-latest
+    env:
+      IMAGE: ghcr.io/${{ github.repository_owner }}/enterprise-aks-sample-api
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push immutable image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/sample-api/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:${{ github.ref_name }}
+            ${{ env.IMAGE }}:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ github.ref_name }}
+          provenance: mode=max
+          sbom: true
+
+      - name: Block critical vulnerabilities
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: CRITICAL
+
+      - name: Generate CycloneDX SBOM
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
+          format: cyclonedx
+          output: sample-api-sbom.cdx.json
+          exit-code: "0"
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v4.1.2
+
+      - name: Sign image with GitHub OIDC
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+        run: cosign sign --yes "${IMAGE}@${{ steps.build.outputs.digest }}"
+
+      - name: Attach signed SBOM attestation
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+        run: >-
+          cosign attest --yes
+          --predicate sample-api-sbom.cdx.json
+          --type cyclonedx
+          "${IMAGE}@${{ steps.build.outputs.digest }}"
+
+      - name: Verify keyless signature identity
+        run: >-
+          cosign verify
+          --certificate-identity-regexp
+          "^${{ github.server_url }}/${{ github.repository }}/.github/workflows/supply-chain.yml@refs/(heads/main|tags/v2\\..*)$"
+          --certificate-oidc-issuer
+          "https://token.actions.githubusercontent.com"
+          "${IMAGE}@${{ steps.build.outputs.digest }}"
+
+      - name: Upload release SBOM
+        uses: actions/upload-artifact@v7
+        with:
+          name: sample-api-${{ github.ref_name }}-sbom
+          path: sample-api-sbom.cdx.json
+          retention-days: 90
+          if-no-files-found: error

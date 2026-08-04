@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "enterprise-aks-sample-api"
-version = "1.5.0"
+version = "2.0.0"
 description = "Secure production-inspired FastAPI workload for the Enterprise AKS GitOps Platform"
 readme = "README.md"
 requires-python = ">=3.12,<3.15"

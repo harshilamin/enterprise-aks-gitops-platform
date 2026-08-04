@@ -10,19 +10,15 @@ import yaml
 
 
 def parse_documents(path: Path) -> list[dict[str, Any]]:
-    with path.open("r", encoding="utf-8") as stream:
+    with path.open("r", encoding="utf-8-sig") as stream:
         return [doc for doc in yaml.safe_load_all(stream) if isinstance(doc, dict)]
 
 
-def get_named(
-    documents: list[dict[str, Any]],
-    kind: str,
-    name: str,
-) -> dict[str, Any]:
+def get_named(documents: list[dict[str, Any]], kind: str, name: str) -> dict[str, Any]:
     matches = [
-        document
-        for document in documents
-        if document.get("kind") == kind and document.get("metadata", {}).get("name") == name
+        doc
+        for doc in documents
+        if doc.get("kind") == kind and doc.get("metadata", {}).get("name") == name
     ]
     if len(matches) != 1:
         raise AssertionError(f"Expected exactly one {kind} named {name}; found {len(matches)}")
@@ -32,25 +28,21 @@ def get_named(
 def validate(path: Path, environment: str) -> None:
     documents = parse_documents(path)
     kinds = {str(doc.get("kind")) for doc in documents}
-
-    required = {
-        "ConfigMap",
-        "Deployment",
-        "HorizontalPodAutoscaler",
-        "NetworkPolicy",
-        "Service",
-        "ServiceAccount",
-    }
+    workload_kind = "Rollout" if "Rollout" in kinds else "Deployment"
+    required = {"ConfigMap", workload_kind, "NetworkPolicy", "Service", "ServiceAccount"}
+    if environment == "prod":
+        required.add("ScaledObject")
+    else:
+        required.add("HorizontalPodAutoscaler")
     missing = required - kinds
     if missing:
         raise AssertionError(f"Missing required resources: {sorted(missing)}")
 
-    deployment = get_named(documents, "Deployment", "sample-api")
-    pod_spec = deployment["spec"]["template"]["spec"]
+    workload = get_named(documents, workload_kind, "sample-api")
+    pod_spec = workload["spec"]["template"]["spec"]
     container = pod_spec["containers"][0]
     pod_security = pod_spec["securityContext"]
     container_security = container["securityContext"]
-
     assert pod_spec["automountServiceAccountToken"] is False
     assert pod_spec["enableServiceLinks"] is False
     assert pod_security["runAsNonRoot"] is True
@@ -61,18 +53,22 @@ def validate(path: Path, environment: str) -> None:
     assert container_security["readOnlyRootFilesystem"] is True
     assert container_security["runAsNonRoot"] is True
     assert "ALL" in container_security["capabilities"]["drop"]
-
     assert container["startupProbe"]["httpGet"]["path"] == "/health/startup"
     assert container["livenessProbe"]["httpGet"]["path"] == "/health/live"
     assert container["readinessProbe"]["httpGet"]["path"] == "/health/ready"
     assert container["resources"]["requests"]
     assert container["resources"]["limits"]
 
-    hpa = get_named(documents, "HorizontalPodAutoscaler", "sample-api")
-    assert hpa["apiVersion"] == "autoscaling/v2"
-    assert hpa["spec"]["minReplicas"] >= 1
-    assert hpa["spec"]["maxReplicas"] >= hpa["spec"]["minReplicas"]
-    assert hpa["spec"]["metrics"]
+    if environment == "prod":
+        scaled = get_named(documents, "ScaledObject", "sample-api")
+        assert scaled["spec"]["minReplicaCount"] == 3
+        assert scaled["spec"]["maxReplicaCount"] == 10
+    else:
+        hpa = get_named(documents, "HorizontalPodAutoscaler", "sample-api")
+        assert hpa["apiVersion"] == "autoscaling/v2"
+        assert hpa["spec"]["minReplicas"] >= 1
+        assert hpa["spec"]["maxReplicas"] >= hpa["spec"]["minReplicas"]
+        assert hpa["spec"]["metrics"]
 
     network_policy = get_named(documents, "NetworkPolicy", "sample-api")
     assert network_policy["apiVersion"] == "networking.k8s.io/v1"
@@ -81,35 +77,29 @@ def validate(path: Path, environment: str) -> None:
     assert network_policy["spec"]["egress"]
 
     config_map = get_named(documents, "ConfigMap", "sample-api")
-    expected_environment = {
-        "dev": "development",
-        "qa": "qa",
-        "prod": "production",
-    }[environment]
+    expected_environment = {"dev": "development", "qa": "qa", "prod": "production"}[environment]
     assert config_map["data"]["APP_ENVIRONMENT"] == expected_environment
 
     app_pdbs = [
-        document
-        for document in documents
-        if document.get("kind") == "PodDisruptionBudget"
-        and document.get("metadata", {}).get("name") == "sample-api"
+        doc
+        for doc in documents
+        if doc.get("kind") == "PodDisruptionBudget"
+        and doc.get("metadata", {}).get("name") == "sample-api"
     ]
     if environment == "dev":
-        assert not app_pdbs, "Development should not render an application PDB"
+        assert not app_pdbs
     else:
         assert len(app_pdbs) == 1
         assert app_pdbs[0]["apiVersion"] == "policy/v1"
-
     if environment == "prod":
-        assert hpa["spec"]["minReplicas"] == 3
-        assert hpa["spec"]["maxReplicas"] == 10
         assert app_pdbs[0]["spec"]["minAvailable"] == 2
-        assert deployment["spec"]["strategy"]["rollingUpdate"]["maxUnavailable"] == 0
+        assert workload["spec"]["minReadySeconds"] == 20
+    if environment == "qa":
+        assert workload_kind == "Rollout"
+        assert workload["spec"]["strategy"]["canary"]["steps"]
 
-    print(
-        f"Validated {len(documents)} rendered resources for {environment}: "
-        + ", ".join(sorted(kinds))
-    )
+    resources = ", ".join(sorted(kinds))
+    print(f"Validated {len(documents)} rendered resources for {environment}: {resources}")
 
 
 def main() -> None:

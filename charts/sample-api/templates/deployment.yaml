@@ -1,3 +1,4 @@
+{{- if not .Values.progressiveDelivery.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,11 +6,12 @@ metadata:
   labels:
     {{- include "sample-api.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
+  {{- if and (not .Values.autoscaling.enabled) (not .Values.keda.enabled) }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
   progressDeadlineSeconds: {{ .Values.progressDeadlineSeconds }}
+  minReadySeconds: {{ .Values.resilience.minReadySeconds }}
   strategy:
     {{- toYaml .Values.strategy | nindent 4 }}
   selector:
@@ -125,6 +127,7 @@ spec:
             failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
             successThreshold: {{ .Values.probes.readiness.successThreshold }}
           {{- end }}
+          terminationMessagePolicy: {{ .Values.resilience.terminationMessagePolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- if .Values.azureKeyVault.enabled }}
@@ -146,9 +149,29 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
+      {{- if or .Values.resilience.antiAffinity.enabled .Values.affinity }}
       affinity:
+        {{- if .Values.resilience.antiAffinity.enabled }}
+        podAntiAffinity:
+          {{- if eq .Values.resilience.antiAffinity.type "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  {{- include "sample-api.selectorLabels" . | nindent 18 }}
+              topologyKey: {{ .Values.resilience.antiAffinity.topologyKey }}
+          {{- else }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    {{- include "sample-api.selectorLabels" . | nindent 20 }}
+                topologyKey: {{ .Values.resilience.antiAffinity.topologyKey }}
+          {{- end }}
+        {{- end }}
+        {{- with .Values.affinity }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- end }}
       {{- with .Values.tolerations }}
       tolerations:
@@ -171,3 +194,4 @@ spec:
               {{- end }}
         {{- end }}
       {{- end }}
+{{- end }}

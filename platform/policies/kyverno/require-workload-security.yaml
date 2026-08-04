@@ -1,0 +1,33 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: sample-api-require-workload-security
+  annotations:
+    policies.kyverno.io/title: Require hardened workload security
+    policies.kyverno.io/category: Pod Security
+spec:
+  validationFailureAction: Audit
+  background: true
+  rules:
+    - name: require-non-root-read-only
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - sample-api-dev
+                - sample-api-qa
+                - sample-api-prod
+      validate:
+        message: Workloads must run as non-root with a read-only root filesystem and no privilege escalation.
+        foreach:
+          - list: request.object.spec.containers
+            pattern:
+              securityContext:
+                runAsNonRoot: true
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL

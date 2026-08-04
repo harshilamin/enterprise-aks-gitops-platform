@@ -59,7 +59,8 @@ def validate_manifest(path: Path, environment: str) -> None:
     documents = parse_documents(path)
     kinds = {str(document.get("kind")) for document in documents}
 
-    required = {"Deployment", "ServiceAccount", "SecretProviderClass"}
+    workload_kind = "Rollout" if "Rollout" in kinds else "Deployment"
+    required = {workload_kind, "ServiceAccount", "SecretProviderClass"}
     missing = required - kinds
     if missing:
         raise AssertionError(f"Missing identity resources: {sorted(missing)}")
@@ -75,8 +76,8 @@ def validate_manifest(path: Path, environment: str) -> None:
     assert annotations["azure.workload.identity/service-account-token-expiration"] == "3600"
     assert service_account["automountServiceAccountToken"] is False
 
-    deployment = get_named(documents, "Deployment", "sample-api")
-    pod_template = deployment["spec"]["template"]
+    workload = get_named(documents, workload_kind, "sample-api")
+    pod_template = workload["spec"]["template"]
     pod_spec = pod_template["spec"]
     container = pod_spec["containers"][0]
 

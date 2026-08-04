@@ -42,6 +42,7 @@ nav:
       - Helm Chart: architecture/helm-chart.md
       - GitOps Architecture: architecture/gitops-architecture.md
       - Workload Identity: architecture/workload-identity.md
+      - Final Platform: architecture/final-platform.md
       - Observability: architecture/observability.md
       - Decisions:
           - ADR Index: adr/README.md
@@ -55,12 +56,18 @@ nav:
           - Key Vault File Mounts: adr/0008-mount-key-vault-secrets-as-files.md
           - OpenTelemetry Collector: adr/0009-use-opentelemetry-collector.md
           - Multi-window SLO Alerts: adr/0010-use-multi-window-slo-alerts.md
+          - KEDA Production Scaling: adr/0011-use-keda-for-production-scaling.md
+          - Argo Rollouts in QA: adr/0012-use-argo-rollouts-in-qa.md
+          - Keyless Image Signing: adr/0013-sign-images-keylessly.md
+          - Audit-first Policy: adr/0014-introduce-policy-in-audit-mode.md
   - Security:
       - Security Model: security/security-model.md
       - Container Security: security/container-security.md
       - Kubernetes Workload Security: security/kubernetes-workload-security.md
       - Argo CD Security: security/argocd-security.md
       - Key Vault Secrets: security/key-vault-secrets.md
+      - Supply Chain: security/supply-chain.md
+      - Policy as Code: security/policy-as-code.md
       - Telemetry Data: security/telemetry-data.md
   - Operations:
       - Local Development: operations/local-development.md
@@ -70,6 +77,9 @@ nav:
       - Drift and Rollback: operations/drift-and-rollback.md
       - Workload Identity Bootstrap: operations/workload-identity-bootstrap.md
       - Secret Rotation: operations/secret-rotation.md
+      - KEDA Scaling: operations/keda-scaling.md
+      - Progressive Delivery: operations/progressive-delivery.md
+      - Resilience Testing: operations/resilience-testing.md
       - Monitoring Bootstrap: operations/monitoring-bootstrap.md
       - Collector Troubleshooting: operations/collector-troubleshooting.md
       - SLO Response: operations/slo-response.md
@@ -87,6 +97,7 @@ nav:
       - v1.3.0 Interview Story: portfolio/v1.3.0-interview-story.md
       - v1.4.0 Interview Story: portfolio/v1.4.0-interview-story.md
       - v1.5.0 Interview Story: portfolio/v1.5.0-interview-story.md
+      - v2.0.0 Interview Story: portfolio/v2.0.0-interview-story.md
   - Releases:
       - v1.0.0 Checklist: releases/v1.0.0-checklist.md
       - v1.1.0 Checklist: releases/v1.1.0-checklist.md
@@ -94,3 +105,4 @@ nav:
       - v1.3.0 Checklist: releases/v1.3.0-checklist.md
       - v1.4.0 Checklist: releases/v1.4.0-checklist.md
       - v1.5.0 Checklist: releases/v1.5.0-checklist.md
+      - v2.0.0 Checklist: releases/v2.0.0-checklist.md

@@ -12,4 +12,7 @@
 | [ADR-0008](0008-mount-key-vault-secrets-as-files.md) | Mount Key Vault secrets as files |
 | [ADR-0009](0009-use-opentelemetry-collector.md) | Use the OpenTelemetry Collector |
 | [ADR-0010](0010-use-multi-window-slo-alerts.md) | Use multi-window SLO burn alerts |
-
+| [ADR-0011](0011-use-keda-for-production-scaling.md) | Use KEDA for production scaling |
+| [ADR-0012](0012-use-argo-rollouts-in-qa.md) | Use Argo Rollouts in QA |
+| [ADR-0013](0013-sign-images-keylessly.md) | Sign images keylessly |
+| [ADR-0014](0014-introduce-policy-in-audit-mode.md) | Introduce policy in audit mode |

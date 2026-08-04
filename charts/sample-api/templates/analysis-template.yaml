@@ -1,0 +1,36 @@
+{{- if and .Values.progressiveDelivery.enabled .Values.progressiveDelivery.analysis.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ include "sample-api.fullname" . }}-slo
+  labels:
+    {{- include "sample-api.labels" . | nindent 4 }}
+spec:
+  metrics:
+    - name: availability
+      interval: {{ .Values.progressiveDelivery.analysis.interval }}
+      count: {{ .Values.progressiveDelivery.analysis.count }}
+      failureLimit: {{ .Values.progressiveDelivery.analysis.failureLimit }}
+      successCondition: result[0] >= {{ .Values.progressiveDelivery.analysis.availabilityTarget }}
+      provider:
+        prometheus:
+          address: {{ .Values.progressiveDelivery.analysis.prometheusAddress | quote }}
+          query: |
+            sum(rate(sample_api_http_server_request_count_total{http_route!~"/health/.*",http_response_status_code!~"5.."}[2m]))
+            /
+            clamp_min(sum(rate(sample_api_http_server_request_count_total{http_route!~"/health/.*"}[2m])), 0.001)
+    - name: p95-latency
+      interval: {{ .Values.progressiveDelivery.analysis.interval }}
+      count: {{ .Values.progressiveDelivery.analysis.count }}
+      failureLimit: {{ .Values.progressiveDelivery.analysis.failureLimit }}
+      successCondition: result[0] <= {{ .Values.progressiveDelivery.analysis.latencyThresholdSeconds }}
+      provider:
+        prometheus:
+          address: {{ .Values.progressiveDelivery.analysis.prometheusAddress | quote }}
+          query: |
+            histogram_quantile(0.95,
+              sum by (le) (
+                rate(sample_api_http_server_request_duration_seconds_bucket{http_route!~"/health/.*"}[2m])
+              )
+            )
+{{- end }}

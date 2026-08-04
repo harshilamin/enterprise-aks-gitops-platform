@@ -1,0 +1,31 @@
+{{- if .Values.keda.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "sample-api.fullname" . }}
+  labels:
+    {{- include "sample-api.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    name: {{ include "sample-api.fullname" . }}
+  pollingInterval: {{ .Values.keda.pollingInterval }}
+  cooldownPeriod: {{ .Values.keda.cooldownPeriod }}
+  minReplicaCount: {{ .Values.keda.minReplicaCount }}
+  maxReplicaCount: {{ .Values.keda.maxReplicaCount }}
+  fallback:
+    failureThreshold: {{ .Values.keda.fallback.failureThreshold }}
+    replicas: {{ .Values.keda.fallback.replicas }}
+  advanced:
+    restoreToOriginalReplicaCount: false
+    horizontalPodAutoscalerConfig:
+      behavior:
+        {{- toYaml .Values.autoscaling.behavior | nindent 8 }}
+  triggers:
+    - type: prometheus
+      metadata:
+        serverAddress: {{ .Values.keda.prometheus.serverAddress | quote }}
+        metricName: {{ .Values.keda.prometheus.metricName | quote }}
+        query: {{ .Values.keda.prometheus.query | quote }}
+        threshold: {{ .Values.keda.prometheus.threshold | quote }}
+        activationThreshold: {{ .Values.keda.prometheus.activationThreshold | quote }}
+{{- end }}

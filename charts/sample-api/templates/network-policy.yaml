@@ -12,11 +12,35 @@ spec:
   policyTypes:
     - Ingress
     - Egress
-  {{- if or .Values.networkPolicy.allowSameNamespace .Values.networkPolicy.additionalIngress }}
+  {{- if or .Values.networkPolicy.allowSameNamespace .Values.networkPolicy.monitoring.enabled .Values.networkPolicy.ingressController.enabled .Values.networkPolicy.additionalIngress }}
   ingress:
     {{- if .Values.networkPolicy.allowSameNamespace }}
     - from:
         - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.containerPort }}
+    {{- end }}
+    {{- if .Values.networkPolicy.monitoring.enabled }}
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              {{- toYaml .Values.networkPolicy.monitoring.namespaceSelector | nindent 14 }}
+          podSelector:
+            matchLabels:
+              {{- toYaml .Values.networkPolicy.monitoring.podSelector | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.containerPort }}
+    {{- end }}
+    {{- if .Values.networkPolicy.ingressController.enabled }}
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              {{- toYaml .Values.networkPolicy.ingressController.namespaceSelector | nindent 14 }}
+          podSelector:
+            matchLabels:
+              {{- toYaml .Values.networkPolicy.ingressController.podSelector | nindent 14 }}
       ports:
         - protocol: TCP
           port: {{ .Values.containerPort }}
