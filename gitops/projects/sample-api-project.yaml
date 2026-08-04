@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: sample-api
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: sample-api
+    app.kubernetes.io/part-of: enterprise-aks-gitops-platform
+    app.kubernetes.io/managed-by: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Restricted Argo CD project for the sample API environments
+
+  sourceRepos:
+    - https://github.com/harshilamin/enterprise-aks-gitops-platform.git
+
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: sample-api-dev
+    - server: https://kubernetes.default.svc
+      namespace: sample-api-qa
+    - server: https://kubernetes.default.svc
+      namespace: sample-api-prod
+
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+      name: sample-api-*
+
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: ConfigMap
+    - group: ""
+      kind: Pod
+    - group: ""
+      kind: Service
+    - group: ""
+      kind: ServiceAccount
+    - group: apps
+      kind: Deployment
+    - group: autoscaling
+      kind: HorizontalPodAutoscaler
+    - group: networking.k8s.io
+      kind: Ingress
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+    - group: policy
+      kind: PodDisruptionBudget
+
+  orphanedResources:
+    warn: true
