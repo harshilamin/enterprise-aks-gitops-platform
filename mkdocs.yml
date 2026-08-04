@@ -1,0 +1,55 @@
+site_name: Enterprise AKS GitOps Platform
+site_description: Production-inspired GitOps application platform for Azure Kubernetes Service
+site_author: Harshil Amin
+repo_name: harshilamin/enterprise-aks-gitops-platform
+repo_url: https://github.com/harshilamin/enterprise-aks-gitops-platform
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: pymdownx.superfences.fence_code_format
+  - pymdownx.highlight
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - Architecture:
+      - Overview: architecture/overview.md
+      - Repository Structure: architecture/repository-structure.md
+      - Delivery Model: architecture/delivery-model.md
+      - Decisions:
+          - ADR Index: adr/README.md
+          - Argo CD: adr/0001-use-argocd-for-gitops.md
+          - Helm: adr/0002-use-helm-for-packaging.md
+          - Immutable Images: adr/0003-promote-immutable-images.md
+          - Repository Separation: adr/0004-separate-infrastructure-and-workloads.md
+  - Security:
+      - Security Model: security/security-model.md
+  - Operations:
+      - Release Process: operations/release-process.md
+  - Portfolio:
+      - Interview Story: portfolio/interview-story.md
+
+  - Releases:
+      - v1.0.0 Checklist: releases/v1.0.0-checklist.md
