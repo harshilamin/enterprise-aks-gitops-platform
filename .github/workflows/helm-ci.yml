@@ -78,7 +78,7 @@ jobs:
           --environment ${{ matrix.environment }}
 
       - name: Validate Kubernetes schemas
-        uses: docker://ghcr.io/yannh/kubeconform:v0.8.0
+        uses: docker://ghcr.io/yannh/kubeconform:v0.7.0
         with:
           entrypoint: /kubeconform
           args: >-
@@ -115,12 +115,12 @@ jobs:
         run: |
           mkdir -p dist
           helm package charts/sample-api --destination dist
-          helm show chart dist/sample-api-1.2.0.tgz
+          helm show chart dist/sample-api-1.4.0.tgz
 
       - name: Upload chart package
         uses: actions/upload-artifact@v7
         with:
           name: sample-api-helm-chart
-          path: dist/sample-api-1.2.0.tgz
+          path: dist/sample-api-1.4.0.tgz
           retention-days: 30
           if-no-files-found: error

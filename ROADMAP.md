@@ -6,27 +6,27 @@ Architecture, structure, governance, documentation, and baseline CI.
 
 ## v1.1.0 — Secure sample API — Complete
 
-FastAPI, tests, health endpoints, structured logs, hardened container, scanning, and SBOM.
+FastAPI, tests, structured logs, hardened container, scanning, and SBOM.
 
 ## v1.2.0 — Helm — Complete
 
-Reusable chart, probes, resources, HPA, PDB, NetworkPolicy, security contexts, and Helm tests.
+Reusable chart, probes, resources, HPA, PDB, NetworkPolicy, security contexts, and tests.
 
 ## v1.3.0 — Argo CD GitOps — Complete
 
-AppProject, ApplicationSet, Dev auto-sync, manual QA/Production sync, digest promotion, drift detection, rollback, and GitOps CI.
+AppProject, ApplicationSet, environment promotion, drift detection, and Git rollback.
 
-## v1.4.0 — Azure identity and secrets — Next
+## v1.4.0 — Azure identity and secrets — Complete
 
-AKS workload identity, Azure Key Vault provider, Secrets Store CSI driver, SecretProviderClass, and least-privilege access.
+AKS Workload Identity, user-assigned managed identity federation, Azure Key Vault CSI provider, file mounts, Azure RBAC, validation, and bootstrap automation.
 
-## v1.5.0 — Observability
+## v1.5.0 — Observability — Next
 
-OpenTelemetry, OTLP Collector, Prometheus, Grafana, logs, traces, alerts, and SLOs.
+OpenTelemetry SDK and Collector, OTLP, Prometheus metrics, Grafana dashboards, traces, logs, alerts, and SLOs.
 
 ## v1.6.0 — Reliability
 
-KEDA, disruption controls, topology, anti-affinity, and failure testing.
+KEDA, resilience controls, failure testing, and advanced networking.
 
 ## v1.7.0 — Progressive delivery
 
@@ -34,7 +34,7 @@ Argo Rollouts, canary, blue/green, health analysis, and automated rollback.
 
 ## v1.8.0 — Supply-chain security
 
-Image signing, provenance, policy enforcement, and admission controls.
+Signing, provenance, policy enforcement, and admission controls.
 
 ## v2.0.0 — Final integrated platform
 

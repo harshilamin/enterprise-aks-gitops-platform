@@ -83,7 +83,31 @@
       }
     },
     "serviceAccount": {
-      "type": "object"
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "create",
+        "automount",
+        "annotations",
+        "name"
+      ],
+      "properties": {
+        "create": {
+          "type": "boolean"
+        },
+        "automount": {
+          "type": "boolean"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "name": {
+          "type": "string"
+        }
+      }
     },
     "podAnnotations": {
       "type": "object",
@@ -267,6 +291,84 @@
     },
     "helmTest": {
       "type": "object"
+    },
+    "workloadIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "clientId",
+        "tenantId",
+        "serviceAccountTokenExpirationSeconds"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "clientId": {
+          "type": "string",
+          "pattern": "^$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        },
+        "tenantId": {
+          "type": "string",
+          "pattern": "^$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        },
+        "serviceAccountTokenExpirationSeconds": {
+          "type": "integer",
+          "minimum": 3600,
+          "maximum": 86400
+        }
+      }
+    },
+    "azureKeyVault": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "name",
+        "cloudName",
+        "mountPath",
+        "objects"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^$|^[A-Za-z][A-Za-z0-9-]{1,22}[A-Za-z0-9]$"
+        },
+        "cloudName": {
+          "type": "string"
+        },
+        "mountPath": {
+          "type": "string",
+          "pattern": "^/[^\\s]*$"
+        },
+        "objects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "objectName"
+            ],
+            "properties": {
+              "objectName": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9-]+$"
+              },
+              "objectVersion": {
+                "type": "string"
+              },
+              "objectAlias": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9._-]+$"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "required": [
@@ -282,5 +384,75 @@
     "podDisruptionBudget",
     "networkPolicy",
     "ingress"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "workloadIdentity": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "serviceAccount": {
+            "properties": {
+              "create": {
+                "const": true
+              }
+            }
+          },
+          "workloadIdentity": {
+            "properties": {
+              "clientId": {
+                "minLength": 36
+              },
+              "tenantId": {
+                "minLength": 36
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "azureKeyVault": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "workloadIdentity": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          },
+          "azureKeyVault": {
+            "properties": {
+              "name": {
+                "minLength": 3
+              },
+              "objects": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      }
+    }
   ]
 }
