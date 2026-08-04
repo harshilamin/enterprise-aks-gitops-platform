@@ -1,52 +1,65 @@
 # Changelog
 
-## [1.2.0] - 2026-08-04
+## [1.3.0] - 2026-08-04
 
 ### Added
 
-- Reusable `sample-api` Helm chart
-- Helm chart JSON Schema
-- Dev, QA, and Production values
-- Deployment and ClusterIP Service
-- Dedicated ServiceAccount with token automount disabled
-- ConfigMap-based non-secret configuration
-- Startup, liveness, and readiness probes
-- Restricted pod and container security contexts
-- Resource requests and limits
-- HorizontalPodAutoscaler using `autoscaling/v2`
-- PodDisruptionBudget using `policy/v1`
-- NetworkPolicy using `networking.k8s.io/v1`
-- Optional Ingress
-- Topology spread constraints
-- Rolling-update and termination controls
-- Helm connection test
-- Rendered-manifest security validator
-- Helm CI matrix for Dev, QA, and Production
-- Kubeconform Kubernetes-schema validation
-- Packaged Helm chart artifact
-- Helm architecture, security, operations, and interview documentation
+- Restricted Argo CD AppProject
+- ApplicationSet for Dev, QA, and Production
+- Go-template missing-key validation
+- Development automatic sync, pruning, and self-healing
+- Manual QA and Production synchronization
+- GitOps environment image values
+- Digest-setting and adjacent-environment promotion automation
+- Promotion unit tests
+- Generated Application rendering
+- Static GitOps validation
+- Helm desired-state composition validation
+- Argo CD installation and bootstrap scripts
+- Drift-detection and Git-based rollback documentation
+- Argo CD security documentation
+- GitOps CI workflow
+- v1.3.0 interview and release guides
+- ADRs for asymmetric sync and adjacent digest promotion
+
+### Changed
+
+- Helm CI now uses published action majors:
+  - `actions/checkout@v6`
+  - `actions/setup-python@v6`
+  - `actions/upload-artifact@v7`
+  - `azure/setup-helm@v5`
 
 ### Notes
 
-- The chart supports an immutable `image.digest`; GitOps will populate it in v1.3.0.
-- No live AKS deployment is claimed or required for this release.
+- The initial GitOps image values retain the local portfolio tag.
+- After a registry image exists, the promotion automation clears the tag and uses the immutable digest.
+- FastAPI source and Helm templates are unchanged.
+
+## [1.2.0] - 2026-08-03
+
+### Added
+
+- Reusable Helm chart
+- Dev, QA, and Production values
+- Deployment, Service, ServiceAccount, and ConfigMap
+- HPA, PDB, NetworkPolicy, optional Ingress, and Helm test
+- Kubernetes security and reliability validation
+- Helm CI and packaged chart artifact
 
 ## [1.1.0] - 2026-08-03
 
 ### Added
 
 - Secure FastAPI application
-- Python 3.12 and 3.14 CI compatibility
-- Kubernetes-ready health endpoints
-- Structured logging and request correlation
-- Automated tests and 100% coverage
-- Hardened non-root container
-- Trivy scanning and CycloneDX SBOM
+- Python 3.12 and 3.14 CI
+- Hardened multi-stage container
+- Tests, typing, linting, coverage, Trivy, and SBOM
 
 ## [1.0.0] - 2026-08-03
 
 ### Added
 
 - Repository foundation
-- AKS GitOps architecture
-- Governance, documentation, and baseline CI
+- Architecture and governance
+- Documentation and baseline CI

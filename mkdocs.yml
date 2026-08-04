@@ -26,7 +26,7 @@ markdown_extensions:
       custom_fences:
         - name: mermaid
           class: mermaid
-          format: pymdownx.superfences.fence_code_format
+          format: pymdownx.superfences.fence_div_format
   - pymdownx.highlight
 
 plugins:
@@ -40,28 +40,38 @@ nav:
       - Delivery Model: architecture/delivery-model.md
       - Secure Sample API: architecture/sample-api.md
       - Helm Chart: architecture/helm-chart.md
+      - GitOps Architecture: architecture/gitops-architecture.md
       - Decisions:
           - ADR Index: adr/README.md
           - Argo CD: adr/0001-use-argocd-for-gitops.md
           - Helm: adr/0002-use-helm-for-packaging.md
           - Immutable Images: adr/0003-promote-immutable-images.md
           - Repository Separation: adr/0004-separate-infrastructure-and-workloads.md
+          - Asymmetric Sync: adr/0005-use-asymmetric-sync-policies.md
+          - Adjacent Digest Promotion: adr/0006-promote-adjacent-image-digests.md
   - Security:
       - Security Model: security/security-model.md
       - Container Security: security/container-security.md
       - Kubernetes Workload Security: security/kubernetes-workload-security.md
+      - Argo CD Security: security/argocd-security.md
   - Operations:
       - Local Development: operations/local-development.md
       - Helm Operations: operations/helm-operations.md
+      - Argo CD Bootstrap: operations/argocd-bootstrap.md
+      - Image Promotion: operations/image-promotion.md
+      - Drift and Rollback: operations/drift-and-rollback.md
       - Release Process: operations/release-process.md
   - Testing:
       - Application Testing: testing/application-testing.md
       - Helm Testing: testing/helm-testing.md
+      - GitOps Testing: testing/gitops-testing.md
   - Portfolio:
       - Interview Story: portfolio/interview-story.md
       - v1.1.0 Interview Story: portfolio/v1.1.0-interview-story.md
       - v1.2.0 Interview Story: portfolio/v1.2.0-interview-story.md
+      - v1.3.0 Interview Story: portfolio/v1.3.0-interview-story.md
   - Releases:
       - v1.0.0 Checklist: releases/v1.0.0-checklist.md
       - v1.1.0 Checklist: releases/v1.1.0-checklist.md
       - v1.2.0 Checklist: releases/v1.2.0-checklist.md
+      - v1.3.0 Checklist: releases/v1.3.0-checklist.md
