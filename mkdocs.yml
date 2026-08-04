@@ -38,6 +38,7 @@ nav:
       - Overview: architecture/overview.md
       - Repository Structure: architecture/repository-structure.md
       - Delivery Model: architecture/delivery-model.md
+      - Secure Sample API: architecture/sample-api.md
       - Decisions:
           - ADR Index: adr/README.md
           - Argo CD: adr/0001-use-argocd-for-gitops.md
@@ -46,10 +47,15 @@ nav:
           - Repository Separation: adr/0004-separate-infrastructure-and-workloads.md
   - Security:
       - Security Model: security/security-model.md
+      - Container Security: security/container-security.md
   - Operations:
+      - Local Development: operations/local-development.md
       - Release Process: operations/release-process.md
+  - Testing:
+      - Application Testing: testing/application-testing.md
   - Portfolio:
       - Interview Story: portfolio/interview-story.md
-
+      - v1.1.0 Interview Story: portfolio/v1.1.0-interview-story.md
   - Releases:
       - v1.0.0 Checklist: releases/v1.0.0-checklist.md
+      - v1.1.0 Checklist: releases/v1.1.0-checklist.md

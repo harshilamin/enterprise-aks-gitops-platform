@@ -1,10 +1,32 @@
 # Enterprise AKS GitOps Platform
 
 [![Repository CI](https://github.com/harshilamin/enterprise-aks-gitops-platform/actions/workflows/repository-ci.yml/badge.svg)](https://github.com/harshilamin/enterprise-aks-gitops-platform/actions/workflows/repository-ci.yml)
+[![Sample API CI](https://github.com/harshilamin/enterprise-aks-gitops-platform/actions/workflows/app-ci.yml/badge.svg)](https://github.com/harshilamin/enterprise-aks-gitops-platform/actions/workflows/app-ci.yml)
 [![Documentation](https://github.com/harshilamin/enterprise-aks-gitops-platform/actions/workflows/docs-ci.yml/badge.svg)](https://github.com/harshilamin/enterprise-aks-gitops-platform/actions/workflows/docs-ci.yml)
+[![Release](https://img.shields.io/github/v/release/harshilamin/enterprise-aks-gitops-platform)](https://github.com/harshilamin/enterprise-aks-gitops-platform/releases)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 A production-inspired Kubernetes application platform demonstrating secure delivery to Azure Kubernetes Service using Helm, Argo CD, GitOps, workload identity, OpenTelemetry, scaling, and progressive delivery.
+
+## Current release — v1.1.0
+
+v1.1.0 adds a secure containerized FastAPI reference workload with:
+
+- Python 3.14.6 local and container baseline
+- Python 3.12 and 3.14 CI compatibility testing
+- Liveness, readiness, and startup endpoints
+- Structured JSON logging
+- Request correlation
+- Security response headers
+- Strict environment validation
+- Production API-documentation hardening
+- Graceful application lifecycle
+- Ruff, mypy, pytest, and coverage gates
+- Multi-stage non-root container image
+- Read-only runtime and dropped Linux capabilities
+- Container smoke testing
+- Trivy vulnerability scanning
+- CycloneDX SBOM generation
 
 ## Relationship to Repository 1
 
@@ -24,111 +46,158 @@ AKS application platform
 
 Repository 1 creates the cloud foundation. Repository 2 manages application delivery and Kubernetes operations.
 
-## Planned capabilities
-
-- Secure FastAPI sample service
-- Multi-stage non-root container
-- Reusable Helm chart
-- Argo CD GitOps
-- Dev, QA, and Production promotion
-- Immutable image-digest promotion
-- AKS workload identity
-- Azure Key Vault CSI integration
-- OpenTelemetry using OTLP
-- Prometheus and Grafana
-- Horizontal and event-driven scaling
-- NetworkPolicy and pod-security controls
-- Canary and blue/green delivery
-- Automated rollback
-- Supply-chain security
-
 ## Architecture
 
 ```mermaid
 flowchart LR
-    Dev[Developer] --> GitHub[GitHub]
+    Developer[Developer] --> GitHub[GitHub]
     GitHub --> CI[GitHub Actions CI]
-    CI --> Test[Test and lint]
-    CI --> Scan[Scan, SBOM, sign]
-    CI --> ACR[Azure Container Registry]
-    CI --> Desired[Update GitOps desired state]
 
-    Desired --> Argo[Argo CD]
-    Argo --> AKSDev[AKS Dev]
-    Argo --> AKSQA[AKS QA]
-    Argo --> AKSProd[AKS Prod]
+    CI --> Quality[Ruff, mypy, pytest, coverage]
+    CI --> Build[Build hardened image]
+    Build --> Scan[Trivy scan]
+    Build --> SBOM[CycloneDX SBOM]
+    Build --> ACR[Azure Container Registry - planned]
 
-    KeyVault[Azure Key Vault] --> Identity[Workload Identity and CSI]
-    Identity --> AKSDev
-    Identity --> AKSQA
-    Identity --> AKSProd
+    ACR --> GitOps[GitOps desired state - planned]
+    GitOps --> Argo[Argo CD - planned]
+    Argo --> Dev[AKS Dev]
+    Argo --> QA[AKS QA]
+    Argo --> Prod[AKS Prod]
 
-    AKSDev --> OTel[OpenTelemetry Collector]
-    AKSQA --> OTel
-    AKSProd --> OTel
-    OTel --> Prom[Prometheus]
-    OTel --> Grafana[Grafana]
-    OTel --> Logs[Logs and traces]
+    KeyVault[Azure Key Vault - planned] --> Identity[Workload Identity and CSI]
+    Identity --> Dev
+    Identity --> QA
+    Identity --> Prod
+
+    Dev --> OTel[OpenTelemetry - planned]
+    QA --> OTel
+    Prod --> OTel
 ```
 
-## Repository structure
+## Secure sample API
+
+Source:
 
 ```text
-.
-├── apps/sample-api/
-├── charts/sample-api/
-├── gitops/
-│   ├── applications/
-│   ├── projects/
-│   └── environments/{dev,qa,prod}/
-├── platform/
-│   ├── argocd/
-│   ├── observability/
-│   ├── policies/
-│   └── secrets/
-├── docs/
-├── diagrams/
-├── scripts/
-├── tests/
-└── .github/workflows/
+apps/sample-api/src/sample_api/
 ```
+
+Tests:
+
+```text
+apps/sample-api/tests/
+```
+
+### Endpoints
+
+| Endpoint | Purpose |
+|---|---|
+| `/` | Service metadata |
+| `/health/live` | Liveness probe |
+| `/health/ready` | Readiness probe |
+| `/health/startup` | Startup probe |
+| `/api/v1/info` | Runtime information |
+| `/docs` | Non-production API documentation |
+
+Production disables `/docs` and `/openapi.json`.
+
+## Local development with Python 3.14.6
+
+```powershell
+py -3.14 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+
+powershell.exe -ExecutionPolicy Bypass `
+  -File .\scripts\validate-app.ps1
+```
+
+Run the API:
+
+```powershell
+.\scripts\run-app.ps1
+```
+
+Open:
+
+```text
+http://127.0.0.1:8080
+http://127.0.0.1:8080/docs
+```
+
+## Container execution
+
+Build:
+
+```powershell
+.\scripts\build-image.ps1
+```
+
+Run the hardened Compose definition:
+
+```powershell
+docker compose up --build
+```
+
+The Compose runtime uses:
+
+- UID and GID `10001`
+- Read-only root filesystem
+- `tmpfs` for `/tmp`
+- All Linux capabilities dropped
+- `no-new-privileges`
+- Graceful shutdown period
+- Container health check
+
+## Application CI
+
+Pull requests run:
+
+1. Python 3.12 and 3.14 dependency installation
+2. Ruff formatting
+3. Ruff linting
+4. Strict mypy checks
+5. pytest with at least 90% coverage
+6. Hardened Docker build
+7. Running-container health checks
+8. Trivy HIGH/CRITICAL reporting with a CRITICAL vulnerability gate
+9. CycloneDX SBOM generation
 
 ## GitOps principle
 
 CI produces and verifies immutable artifacts. Git stores desired state. Argo CD reconciles that desired state with AKS.
 
-The same image digest is promoted through Dev, QA, and Production. It is not rebuilt for each environment.
+The same image digest will be promoted through Dev, QA, and Production. It will not be rebuilt for each environment.
 
 ## Release roadmap
 
-| Release | Scope |
-|---|---|
-| v1.0.0 | Foundation, architecture, governance, documentation |
-| v1.1.0 | Secure containerized FastAPI service |
-| v1.2.0 | Reusable Helm chart |
-| v1.3.0 | Argo CD GitOps and environment promotion |
-| v1.4.0 | Workload identity and Key Vault |
-| v1.5.0 | OpenTelemetry, Prometheus, Grafana |
-| v1.6.0 | Scaling, resilience, and network security |
-| v1.7.0 | Progressive delivery and rollback |
-| v1.8.0 | Supply-chain security and policy |
-| v2.0.0 | Final integrated platform |
+| Release | Scope | Status |
+|---|---|---|
+| v1.0.0 | Foundation, architecture, governance, documentation | Complete |
+| v1.1.0 | Secure containerized FastAPI service | Complete |
+| v1.2.0 | Reusable Helm chart | Next |
+| v1.3.0 | Argo CD GitOps and environment promotion | Planned |
+| v1.4.0 | Workload identity and Key Vault | Planned |
+| v1.5.0 | OpenTelemetry, Prometheus, Grafana | Planned |
+| v1.6.0 | Scaling, resilience, and network security | Planned |
+| v1.7.0 | Progressive delivery and rollback | Planned |
+| v1.8.0 | Supply-chain security and policy | Planned |
+| v2.0.0 | Final integrated platform | Planned |
 
-## v1.0.0 scope
+## Honest scope
 
-This release establishes the architecture, repository skeleton, ADRs, documentation site, governance, and baseline CI. Application and Kubernetes implementation begin in v1.1.0.
+The application, container security, automated tests, image scanning, and SBOM generation are implemented in this release.
 
-## Local validation
-
-```powershell
-powershell.exe -ExecutionPolicy Bypass -File .\scripts\validate-foundation.ps1
-python -m mkdocs build --strict
-```
+Helm, Argo CD, ACR publishing, workload identity, Key Vault, OpenTelemetry, Kubernetes scaling, and progressive delivery remain future releases and are not claimed as implemented yet.
 
 ## Interview summary
 
-> Repository 1 provisions AKS and Azure platform services. Repository 2 demonstrates how I package, secure, deploy, observe, scale, and promote applications on that platform using GitOps.
+> Repository 1 provisions AKS and Azure platform services. Repository 2 demonstrates how I package, secure, test, deploy, observe, scale, and promote applications on that platform using GitOps.
 
 ## Author
 
-**Harshil Amin** — Senior DevOps Engineer
+**Harshil Amin**  
+Senior DevOps Engineer
