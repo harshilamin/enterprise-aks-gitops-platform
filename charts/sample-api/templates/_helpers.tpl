@@ -71,3 +71,31 @@ array:
 {{ end }}
 {{ end }}
 {{- end }}
+
+{{/* OpenTelemetry Collector labels. */}}
+{{- define "sample-api.collectorLabels" -}}
+helm.sh/chart: {{ include "sample-api.chart" . }}
+app.kubernetes.io/name: {{ include "sample-api.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/version: {{ .Values.observability.collector.image.tag | quote }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/component: otel-collector
+app.kubernetes.io/part-of: enterprise-aks-gitops-platform
+{{- end }}
+
+{{/* OpenTelemetry Collector selector labels. */}}
+{{- define "sample-api.collectorSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "sample-api.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: otel-collector
+{{- end }}
+
+{{/* OpenTelemetry Collector image reference. */}}
+{{- define "sample-api.collectorImage" -}}
+{{- $repository := required "observability.collector.image.repository is required" .Values.observability.collector.image.repository -}}
+{{- if .Values.observability.collector.image.digest -}}
+{{- printf "%s@%s" $repository .Values.observability.collector.image.digest -}}
+{{- else -}}
+{{- printf "%s:%s" $repository (required "observability.collector.image.tag is required" .Values.observability.collector.image.tag) -}}
+{{- end -}}
+{{- end }}

@@ -1,0 +1,31 @@
+{{- if and .Values.observability.enabled .Values.observability.collector.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sample-api.fullname" . }}-otel-collector
+  labels:
+    {{- include "sample-api.collectorLabels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "sample-api.collectorSelectorLabels" . | nindent 4 }}
+  ports:
+    - name: otlp-grpc
+      port: {{ .Values.observability.collector.ports.otlpGrpc }}
+      targetPort: otlp-grpc
+      protocol: TCP
+      appProtocol: grpc
+    - name: otlp-http
+      port: {{ .Values.observability.collector.ports.otlpHttp }}
+      targetPort: otlp-http
+      protocol: TCP
+      appProtocol: http
+    - name: prometheus
+      port: {{ .Values.observability.collector.ports.prometheus }}
+      targetPort: prometheus
+      protocol: TCP
+    - name: telemetry
+      port: {{ .Values.observability.collector.ports.telemetry }}
+      targetPort: telemetry
+      protocol: TCP
+{{- end }}

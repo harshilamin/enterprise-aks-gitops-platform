@@ -369,6 +369,271 @@
           }
         }
       }
+    },
+    "observability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "serviceName",
+        "otlp",
+        "traces",
+        "collector",
+        "serviceMonitor",
+        "prometheusRule",
+        "grafanaDashboard"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "serviceName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "otlp": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "endpoint",
+            "metricExportIntervalMs"
+          ],
+          "properties": {
+            "endpoint": {
+              "type": "string",
+              "pattern": "^$|^https?://[^\\s]+$"
+            },
+            "metricExportIntervalMs": {
+              "type": "integer",
+              "minimum": 1000,
+              "maximum": 300000
+            }
+          }
+        },
+        "traces": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sampleRatio"
+          ],
+          "properties": {
+            "sampleRatio": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "collector": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "replicaCount",
+            "image",
+            "ports",
+            "resources",
+            "memoryLimitMiB",
+            "replicasForPdb",
+            "podDisruptionBudget",
+            "securityContext",
+            "podSecurityContext"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "replicaCount": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10
+            },
+            "image": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "repository",
+                "tag",
+                "digest",
+                "pullPolicy"
+              ],
+              "properties": {
+                "repository": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "tag": {
+                  "type": "string"
+                },
+                "digest": {
+                  "type": "string",
+                  "pattern": "^$|^sha256:[a-f0-9]{64}$"
+                },
+                "pullPolicy": {
+                  "type": "string",
+                  "enum": [
+                    "Always",
+                    "IfNotPresent",
+                    "Never"
+                  ]
+                }
+              }
+            },
+            "ports": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "otlpGrpc",
+                "otlpHttp",
+                "prometheus",
+                "telemetry",
+                "health"
+              ],
+              "properties": {
+                "otlpGrpc": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                },
+                "otlpHttp": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                },
+                "prometheus": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                },
+                "telemetry": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                },
+                "health": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                }
+              }
+            },
+            "resources": {
+              "type": "object"
+            },
+            "memoryLimitMiB": {
+              "type": "integer",
+              "minimum": 128,
+              "maximum": 4096
+            },
+            "replicasForPdb": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 10
+            },
+            "podDisruptionBudget": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "enabled",
+                "minAvailable"
+              ],
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "minAvailable": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "securityContext": {
+              "type": "object"
+            },
+            "podSecurityContext": {
+              "type": "object"
+            }
+          }
+        },
+        "serviceMonitor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "interval",
+            "scrapeTimeout",
+            "additionalLabels"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "interval": {
+              "type": "string",
+              "pattern": "^[0-9]+(ms|s|m|h)$"
+            },
+            "scrapeTimeout": {
+              "type": "string",
+              "pattern": "^[0-9]+(ms|s|m|h)$"
+            },
+            "additionalLabels": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "prometheusRule": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "additionalLabels",
+            "availabilityTarget",
+            "latencyThresholdSeconds"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "additionalLabels": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "availabilityTarget": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1
+            },
+            "latencyThresholdSeconds": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "grafanaDashboard": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "labels"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "labels": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "required": [
@@ -383,7 +648,8 @@
     "autoscaling",
     "podDisruptionBudget",
     "networkPolicy",
-    "ingress"
+    "ingress",
+    "observability"
   ],
   "allOf": [
     {

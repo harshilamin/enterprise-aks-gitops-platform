@@ -14,10 +14,18 @@ def parse_documents(path: Path) -> list[dict[str, Any]]:
         return [doc for doc in yaml.safe_load_all(stream) if isinstance(doc, dict)]
 
 
-def get_one(documents: list[dict[str, Any]], kind: str) -> dict[str, Any]:
-    matches = [doc for doc in documents if doc.get("kind") == kind]
+def get_named(
+    documents: list[dict[str, Any]],
+    kind: str,
+    name: str,
+) -> dict[str, Any]:
+    matches = [
+        document
+        for document in documents
+        if document.get("kind") == kind and document.get("metadata", {}).get("name") == name
+    ]
     if len(matches) != 1:
-        raise AssertionError(f"Expected exactly one {kind}; found {len(matches)}")
+        raise AssertionError(f"Expected exactly one {kind} named {name}; found {len(matches)}")
     return matches[0]
 
 
@@ -37,7 +45,7 @@ def validate(path: Path, environment: str) -> None:
     if missing:
         raise AssertionError(f"Missing required resources: {sorted(missing)}")
 
-    deployment = get_one(documents, "Deployment")
+    deployment = get_named(documents, "Deployment", "sample-api")
     pod_spec = deployment["spec"]["template"]["spec"]
     container = pod_spec["containers"][0]
     pod_security = pod_spec["securityContext"]
@@ -60,19 +68,19 @@ def validate(path: Path, environment: str) -> None:
     assert container["resources"]["requests"]
     assert container["resources"]["limits"]
 
-    hpa = get_one(documents, "HorizontalPodAutoscaler")
+    hpa = get_named(documents, "HorizontalPodAutoscaler", "sample-api")
     assert hpa["apiVersion"] == "autoscaling/v2"
     assert hpa["spec"]["minReplicas"] >= 1
     assert hpa["spec"]["maxReplicas"] >= hpa["spec"]["minReplicas"]
     assert hpa["spec"]["metrics"]
 
-    network_policy = get_one(documents, "NetworkPolicy")
+    network_policy = get_named(documents, "NetworkPolicy", "sample-api")
     assert network_policy["apiVersion"] == "networking.k8s.io/v1"
     assert set(network_policy["spec"]["policyTypes"]) == {"Ingress", "Egress"}
     assert network_policy["spec"]["ingress"]
     assert network_policy["spec"]["egress"]
 
-    config_map = get_one(documents, "ConfigMap")
+    config_map = get_named(documents, "ConfigMap", "sample-api")
     expected_environment = {
         "dev": "development",
         "qa": "qa",
@@ -80,17 +88,22 @@ def validate(path: Path, environment: str) -> None:
     }[environment]
     assert config_map["data"]["APP_ENVIRONMENT"] == expected_environment
 
-    pdbs = [doc for doc in documents if doc.get("kind") == "PodDisruptionBudget"]
+    app_pdbs = [
+        document
+        for document in documents
+        if document.get("kind") == "PodDisruptionBudget"
+        and document.get("metadata", {}).get("name") == "sample-api"
+    ]
     if environment == "dev":
-        assert not pdbs, "Development should not render a PDB"
+        assert not app_pdbs, "Development should not render an application PDB"
     else:
-        assert len(pdbs) == 1
-        assert pdbs[0]["apiVersion"] == "policy/v1"
+        assert len(app_pdbs) == 1
+        assert app_pdbs[0]["apiVersion"] == "policy/v1"
 
     if environment == "prod":
         assert hpa["spec"]["minReplicas"] == 3
         assert hpa["spec"]["maxReplicas"] == 10
-        assert pdbs[0]["spec"]["minAvailable"] == 2
+        assert app_pdbs[0]["spec"]["minAvailable"] == 2
         assert deployment["spec"]["strategy"]["rollingUpdate"]["maxUnavailable"] == 0
 
     print(

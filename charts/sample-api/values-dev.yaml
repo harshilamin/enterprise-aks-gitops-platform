@@ -23,3 +23,12 @@ resources:
     memory: 192Mi
 
 revisionHistoryLimit: 3
+
+observability:
+  traces:
+    sampleRatio: 1.0
+  collector:
+    replicaCount: 1
+    podDisruptionBudget:
+      enabled: false
+

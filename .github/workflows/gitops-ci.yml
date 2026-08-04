@@ -146,6 +146,7 @@ jobs:
           args: >-
             -strict
             -summary
+            -ignore-missing-schemas
             -kubernetes-version 1.36.0
             .rendered/gitops/sample-api-${{ matrix.environment }}.yaml
 

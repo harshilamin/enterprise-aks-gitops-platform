@@ -1,57 +1,58 @@
 # Changelog
 
-## [1.4.0] - 2026-08-04
+## [1.5.0] - 2026-08-04
 
 ### Added
 
-- Microsoft Entra Workload ID Helm values
-- Workload Identity ServiceAccount annotations
-- Required pod identity label
-- Azure Key Vault `SecretProviderClass`
-- Read-only Secrets Store CSI volume and mount
-- Identity-enabled Dev, QA, and Production rendering
-- Azure CLI bootstrap automation for OIDC, Workload Identity, CSI add-on, managed identity, RBAC, and federation
-- Non-secret GitOps values generator
-- Live verification scripts that do not print secret contents
-- Six values-generation unit tests
-- Purpose-built identity manifest validation
-- Workload Identity CI workflow
-- AppProject permission for namespaced `SecretProviderClass`
-- Architecture, security, operations, testing, interview, and release documentation
-- ADRs for Workload Identity and file-based Key Vault mounts
+- OpenTelemetry Python traces and metrics
+- OTLP/HTTP exporters
+- Trace-correlated JSON logs and `X-Trace-ID`
+- OpenTelemetry Collector contrib `0.157.0`
+- Memory limiter, resource, and batch processors
+- Prometheus application metric exporter
+- Collector internal telemetry
+- ServiceMonitor for application and Collector metrics
+- Grafana dashboard ConfigMap
+- SLI recording rules
+- 99.5% availability objective
+- Fast and slow multi-window burn alerts
+- p95 latency objective and alert
+- Collector export-failure alert
+- kube-prometheus-stack GitOps Application pinned to `86.0.0`
+- Interactive Grafana administrator Secret creation
+- Observability contract tests and CI
+- Architecture, security, testing, runbook, ADR, and interview documentation
 
 ### Changed
 
-- Helm chart version updated to `1.4.0`
-- Helm packaging artifact updated to `sample-api-1.4.0.tgz`
-- AppProject namespace resource allowlist expanded for `SecretProviderClass`
-- AppProject `Namespace` cluster allowlist corrected to the supported group/kind schema
-- Helm and GitOps CI corrected to the published Kubeconform `v0.7.0` image
+- Application version updated to `1.5.0`
+- Helm chart version and appVersion updated to `1.5.0`
+- GitOps image references updated to `1.5.0`
+- Base and identity validators updated for multi-component charts
+- AppProject expanded for ServiceMonitor and PrometheusRule
 
 ### Security
 
-- Uses `Key Vault Secrets User` role ID `4633458b-17de-408a-b874-0445c86b69e6`
-- Requires Azure RBAC authorization
-- Does not synchronize Key Vault values into Kubernetes Secrets
-- Does not store or print secret values
+- Telemetry excludes request bodies, credentials, cookies, and query strings
+- Collector runs non-root with a read-only root filesystem
+- NetworkPolicy restricts OTLP and Prometheus traffic
+- Grafana password is not stored in Git
+
+## [1.4.0] - 2026-08-04
+
+- Microsoft Entra Workload Identity and Azure Key Vault CSI integration
 
 ## [1.3.0] - 2026-08-04
 
-- Argo CD AppProject and ApplicationSet
-- Dev automatic sync
-- QA and Production manual synchronization
-- Digest promotion
-- Drift and rollback documentation
+- Argo CD AppProject, ApplicationSet, and immutable promotion
 
 ## [1.2.0] - 2026-08-03
 
-- Reusable Helm chart
-- Kubernetes security, reliability, and network controls
+- Helm and Kubernetes controls
 
 ## [1.1.0] - 2026-08-03
 
-- Secure FastAPI service
-- Hardened container, tests, scanning, and SBOM
+- Secure FastAPI service and hardened container
 
 ## [1.0.0] - 2026-08-03
 

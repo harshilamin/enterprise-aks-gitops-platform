@@ -9,3 +9,8 @@ data:
   APP_VERSION: {{ .Chart.AppVersion | quote }}
   APP_ENVIRONMENT: {{ .Values.app.environment | quote }}
   LOG_LEVEL: {{ .Values.app.logLevel | quote }}
+  OTEL_ENABLED: {{ .Values.observability.enabled | quote }}
+  OTEL_SERVICE_NAME: {{ .Values.observability.serviceName | quote }}
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ default (printf "http://%s-otel-collector:%d" (include "sample-api.fullname" .) (int .Values.observability.collector.ports.otlpHttp)) .Values.observability.otlp.endpoint | quote }}
+  OTEL_METRIC_EXPORT_INTERVAL_MS: {{ .Values.observability.otlp.metricExportIntervalMs | quote }}
+  OTEL_TRACE_SAMPLE_RATIO: {{ .Values.observability.traces.sampleRatio | quote }}

@@ -9,6 +9,10 @@ from sample_api.main import create_app
 
 @pytest.fixture
 def client() -> Iterator[TestClient]:
-    settings = Settings(environment="test", log_level="CRITICAL")
+    settings = Settings(
+        environment="test",
+        log_level="CRITICAL",
+        otel_enabled=False,
+    )
     with TestClient(create_app(settings)) as test_client:
         yield test_client

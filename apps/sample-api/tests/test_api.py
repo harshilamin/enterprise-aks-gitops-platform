@@ -9,7 +9,7 @@ def test_root_returns_service_metadata(client: TestClient) -> None:
     assert response.status_code == 200
     assert response.json() == {
         "service": "enterprise-aks-sample-api",
-        "version": "1.1.0",
+        "version": "1.5.0",
         "environment": "test",
         "status": "running",
     }
@@ -62,3 +62,11 @@ def test_unknown_route_returns_not_found(client: TestClient) -> None:
     response = client.get("/does-not-exist")
 
     assert response.status_code == 404
+
+
+def test_trace_id_is_returned(client: TestClient) -> None:
+    response = client.get("/")
+
+    trace_id = response.headers["X-Trace-ID"]
+    assert len(trace_id) == 32
+    int(trace_id, 16)

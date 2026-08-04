@@ -42,6 +42,7 @@ nav:
       - Helm Chart: architecture/helm-chart.md
       - GitOps Architecture: architecture/gitops-architecture.md
       - Workload Identity: architecture/workload-identity.md
+      - Observability: architecture/observability.md
       - Decisions:
           - ADR Index: adr/README.md
           - Argo CD: adr/0001-use-argocd-for-gitops.md
@@ -52,12 +53,15 @@ nav:
           - Adjacent Digest Promotion: adr/0006-promote-adjacent-image-digests.md
           - Entra Workload Identity: adr/0007-use-entra-workload-identity.md
           - Key Vault File Mounts: adr/0008-mount-key-vault-secrets-as-files.md
+          - OpenTelemetry Collector: adr/0009-use-opentelemetry-collector.md
+          - Multi-window SLO Alerts: adr/0010-use-multi-window-slo-alerts.md
   - Security:
       - Security Model: security/security-model.md
       - Container Security: security/container-security.md
       - Kubernetes Workload Security: security/kubernetes-workload-security.md
       - Argo CD Security: security/argocd-security.md
       - Key Vault Secrets: security/key-vault-secrets.md
+      - Telemetry Data: security/telemetry-data.md
   - Operations:
       - Local Development: operations/local-development.md
       - Helm Operations: operations/helm-operations.md
@@ -66,21 +70,27 @@ nav:
       - Drift and Rollback: operations/drift-and-rollback.md
       - Workload Identity Bootstrap: operations/workload-identity-bootstrap.md
       - Secret Rotation: operations/secret-rotation.md
+      - Monitoring Bootstrap: operations/monitoring-bootstrap.md
+      - Collector Troubleshooting: operations/collector-troubleshooting.md
+      - SLO Response: operations/slo-response.md
       - Release Process: operations/release-process.md
   - Testing:
       - Application Testing: testing/application-testing.md
       - Helm Testing: testing/helm-testing.md
       - GitOps Testing: testing/gitops-testing.md
       - Identity Testing: testing/identity-testing.md
+      - Observability Testing: testing/observability-testing.md
   - Portfolio:
       - Interview Story: portfolio/interview-story.md
       - v1.1.0 Interview Story: portfolio/v1.1.0-interview-story.md
       - v1.2.0 Interview Story: portfolio/v1.2.0-interview-story.md
       - v1.3.0 Interview Story: portfolio/v1.3.0-interview-story.md
       - v1.4.0 Interview Story: portfolio/v1.4.0-interview-story.md
+      - v1.5.0 Interview Story: portfolio/v1.5.0-interview-story.md
   - Releases:
       - v1.0.0 Checklist: releases/v1.0.0-checklist.md
       - v1.1.0 Checklist: releases/v1.1.0-checklist.md
       - v1.2.0 Checklist: releases/v1.2.0-checklist.md
       - v1.3.0 Checklist: releases/v1.3.0-checklist.md
       - v1.4.0 Checklist: releases/v1.4.0-checklist.md
+      - v1.5.0 Checklist: releases/v1.5.0-checklist.md

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "enterprise-aks-sample-api"
-version = "1.1.0"
+version = "1.5.0"
 description = "Secure production-inspired FastAPI workload for the Enterprise AKS GitOps Platform"
 readme = "README.md"
 requires-python = ">=3.12,<3.15"
@@ -22,6 +22,9 @@ classifiers = [
 ]
 dependencies = [
   "fastapi==0.139.2",
+  "opentelemetry-api==1.42.1",
+  "opentelemetry-exporter-otlp-proto-http==1.42.1",
+  "opentelemetry-sdk==1.42.1",
   "pydantic==2.13.4",
   "uvicorn[standard]==0.51.0"
 ]

@@ -1,0 +1,13 @@
+{{- if and .Values.observability.enabled .Values.observability.collector.enabled .Values.observability.collector.podDisruptionBudget.enabled (gt (int .Values.observability.collector.replicaCount) 1) }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "sample-api.fullname" . }}-otel-collector
+  labels:
+    {{- include "sample-api.collectorLabels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.observability.collector.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "sample-api.collectorSelectorLabels" . | nindent 6 }}
+{{- end }}

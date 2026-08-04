@@ -22,3 +22,12 @@ resources:
   limits:
     cpu: 500m
     memory: 256Mi
+
+observability:
+  traces:
+    sampleRatio: 0.5
+  collector:
+    replicaCount: 1
+    podDisruptionBudget:
+      enabled: true
+

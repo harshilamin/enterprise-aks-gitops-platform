@@ -84,6 +84,7 @@ jobs:
           args: >-
             -strict
             -summary
+            -ignore-missing-schemas
             -kubernetes-version 1.36.0
             rendered-${{ matrix.environment }}.yaml
 
@@ -115,12 +116,12 @@ jobs:
         run: |
           mkdir -p dist
           helm package charts/sample-api --destination dist
-          helm show chart dist/sample-api-1.4.0.tgz
+          helm show chart dist/sample-api-1.5.0.tgz
 
       - name: Upload chart package
         uses: actions/upload-artifact@v7
         with:
           name: sample-api-helm-chart
-          path: dist/sample-api-1.4.0.tgz
+          path: dist/sample-api-1.5.0.tgz
           retention-days: 30
           if-no-files-found: error

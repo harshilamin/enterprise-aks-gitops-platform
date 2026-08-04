@@ -1,0 +1,68 @@
+{{- if and .Values.observability.enabled .Values.observability.collector.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "sample-api.fullname" . }}-otel-collector
+  labels:
+    {{- include "sample-api.collectorLabels" . | nindent 4 }}
+data:
+  collector.yaml: |
+    extensions:
+      health_check:
+        endpoint: 0.0.0.0:{{ .Values.observability.collector.ports.health }}
+
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:{{ .Values.observability.collector.ports.otlpGrpc }}
+          http:
+            endpoint: 0.0.0.0:{{ .Values.observability.collector.ports.otlpHttp }}
+
+    processors:
+      memory_limiter:
+        check_interval: 1s
+        limit_mib: {{ .Values.observability.collector.memoryLimitMiB }}
+        spike_limit_mib: 96
+      resource:
+        attributes:
+          - key: deployment.environment.name
+            value: {{ .Values.app.environment | quote }}
+            action: upsert
+          - key: k8s.namespace.name
+            value: {{ .Release.Namespace | quote }}
+            action: upsert
+      batch:
+        send_batch_size: 1024
+        timeout: 5s
+
+    exporters:
+      debug:
+        verbosity: basic
+      prometheus:
+        endpoint: 0.0.0.0:{{ .Values.observability.collector.ports.prometheus }}
+        namespace: sample_api
+        resource_to_telemetry_conversion:
+          enabled: true
+
+    service:
+      extensions: [health_check]
+      telemetry:
+        metrics:
+          level: normal
+          readers:
+            - pull:
+                exporter:
+                  prometheus:
+                    host: 0.0.0.0
+                    port: {{ .Values.observability.collector.ports.telemetry }}
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter, resource, batch]
+          exporters: [debug]
+        metrics:
+          receivers: [otlp]
+          processors: [memory_limiter, resource, batch]
+          exporters: [prometheus]
+{{- end }}

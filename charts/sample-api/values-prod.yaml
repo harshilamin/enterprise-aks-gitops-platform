@@ -7,7 +7,7 @@ replicaCount: 3
 image:
   pullPolicy: IfNotPresent
   # The GitOps workflow will replace tag/digest with a verified immutable digest.
-  tag: "1.1.0"
+  tag: "1.5.0"
   digest: ""
 
 autoscaling:
@@ -68,3 +68,12 @@ topologySpreadConstraints:
     whenUnsatisfiable: ScheduleAnyway
     labelSelector:
       matchLabels: {}
+
+observability:
+  traces:
+    sampleRatio: 0.1
+  collector:
+    replicaCount: 2
+    podDisruptionBudget:
+      enabled: true
+
